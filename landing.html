@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+
+<html class="" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Campus Parking Reservation System</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "tertiary": "#585c65",
+                "primary-fixed-dim": "#ffb4a4",
+                "surface-variant": "#e0e3e5",
+                "inverse-primary": "#ffb4a4",
+                "surface-dim": "#d8dadc",
+                "tertiary-fixed": "#dfe2ed",
+                "outline-variant": "#ddc0ba",
+                "on-error-container": "#93000a",
+                "on-primary": "#ffffff",
+                "secondary-fixed": "#e9ddff",
+                "surface": "#f7f9fb",
+                "surface-tint": "#a23e29",
+                "on-primary-fixed-variant": "#822714",
+                "secondary": "#6b38d4",
+                "on-error": "#ffffff",
+                "surface-container-highest": "#e0e3e5",
+                "on-background": "#191c1e",
+                "background": "#f7f9fb",
+                "on-surface-variant": "#57423d",
+                "secondary-container": "#8455ef",
+                "error-container": "#ffdad6",
+                "surface-container-high": "#e6e8ea",
+                "on-primary-container": "#fffbff",
+                "on-secondary-container": "#fffbff",
+                "on-secondary-fixed": "#23005c",
+                "on-tertiary": "#ffffff",
+                "primary-fixed": "#ffdad3",
+                "on-tertiary-container": "#fefcff",
+                "on-secondary-fixed-variant": "#5516be",
+                "on-surface": "#191c1e",
+                "tertiary-container": "#71747e",
+                "on-tertiary-fixed": "#181c23",
+                "outline": "#8a726c",
+                "primary": "#9f3c27",
+                "surface-container-low": "#f2f4f6",
+                "tertiary-fixed-dim": "#c3c6d1",
+                "on-tertiary-fixed-variant": "#434750",
+                "on-secondary": "#ffffff",
+                "primary-container": "#bf533c",
+                "surface-container": "#eceef0",
+                "surface-container-lowest": "#ffffff",
+                "inverse-on-surface": "#eff1f3",
+                "error": "#ba1a1a",
+                "inverse-surface": "#2d3133",
+                "secondary-fixed-dim": "#d0bcff",
+                "on-primary-fixed": "#3e0500",
+                "surface-bright": "#f7f9fb"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "xl": "64px",
+                "margin-mobile": "16px",
+                "lg": "40px",
+                "sm": "12px",
+                "gutter": "24px",
+                "base": "8px",
+                "margin-desktop": "48px",
+                "md": "24px",
+                "xs": "4px"
+        },
+        "fontFamily": {
+                "headline-lg": [
+                        "Geist"
+                ],
+                "body-md": [
+                        "Geist"
+                ],
+                "headline-md": [
+                        "Geist"
+                ],
+                "display": [
+                        "Geist"
+                ],
+                "label-sm": [
+                        "Geist"
+                ],
+                "body-lg": [
+                        "Geist"
+                ],
+                "label-md": [
+                        "Geist"
+                ],
+                "headline-lg-mobile": [
+                        "Geist"
+                ]
+        },
+        "fontSize": {
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "display": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0.01em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md min-h-screen flex flex-col bg-background text-on-surface">
+<!-- Header -->
+<header class="bg-white/85 backdrop-blur-md border-b border-[#8B5CF6]/20 fixed top-0 left-0 w-full z-50 h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop">
+<div class="flex items-center gap-sm">
+<img alt="Campus Parking Logo" class="w-8 h-8 rounded-DEFAULT object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARfx4AAg6axyle_bux0bSbu7kK1CevBtYelvLJRiHZavhMZK6tQyMn0D3jky85CzzcCw04G_O_FGO0_kasygFMogy0hr9BnJY_zBgUJHj77lGa6siZM6QUOrW7H08oX73yzzt8nGiDfKwIsOTkMuOhNS9Bym07pVd7ftSW7rkxpGRyO3diapT_uyNfQ9VMdyXpr3rZQLjitoGhNew9mNNH7pgADJpMwfsBYDB24yKb1eO_fWkfHqw"/>
+<span class="font-headline-md text-headline-md text-primary font-bold">Campus Parking</span>
+</div>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Features</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Pricing</a>
+<div class="flex items-center gap-md ml-4">
+<button aria-label="Toggle Theme" class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">dark_mode</button>
+<button class="font-label-md text-label-md text-secondary bg-transparent border border-outline-variant rounded-DEFAULT px-4 py-2 hover:bg-surface-variant transition-colors">Log In</button>
+<button class="font-label-md text-label-md bg-[#E06C53] text-white font-bold rounded-DEFAULT px-4 py-2 hover:opacity-90 transition-opacity">Sign Up</button>
+</div>
+</nav>
+<button class="md:hidden text-on-surface-variant">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="flex-grow pt-24 pb-16 px-margin-mobile md:px-margin-desktop w-full max-w-7xl mx-auto flex flex-col gap-2xl relative">
+<!-- Hero Background -->
+<div class="absolute inset-0 z-[-1] pointer-events-none opacity-50">
+<shader-art autoplay="" class="w-full h-full object-cover">
+<script data-size="2" name="position" type="buffer">
+                [-1, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, 1]
+            </script>
+<script data-size="2" name="uv" type="buffer">
+                [ 0, 1,  0,  0, 1,  0, 1,  0, 1, 1,  0, 1]
+            </script>
+<script type="vert">
+                precision highp float;
+                attribute vec2 position;
+                attribute vec2 uv;
+                varying vec2 v_texCoord;
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                    v_texCoord = uv;
+                }
+            </script>
+<script type="frag">
+                precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+
+void main() {
+    vec2 uv = v_texCoord;
+    
+    // Base light background
+    vec3 colorBase = vec3(0.98, 0.99, 1.0); // Very light slate/white
+    
+    // Tint colors for the mesh
+    vec3 colorViolet = vec3(0.96, 0.95, 1.0); // Pale Violet Tint (#F5F3FF)
+    vec3 colorTeal = vec3(0.94, 0.99, 0.96);   // Soft Teal Tint (#F0FDF4)
+    
+    float t = u_time * 0.3;
+    
+    // Moving blobs for the mesh effect
+    vec2 p1 = vec2(0.3 + 0.2 * cos(t), 0.3 + 0.2 * sin(t * 0.8));
+    vec2 p2 = vec2(0.7 + 0.2 * sin(t * 0.9), 0.7 + 0.2 * cos(t * 1.1));
+    
+    float d1 = smoothstep(0.8, 0.0, distance(uv, p1));
+    float d2 = smoothstep(0.8, 0.0, distance(uv, p2));
+    
+    vec3 finalColor = mix(colorBase, colorViolet, d1 * 0.5);
+    finalColor = mix(finalColor, colorTeal, d2 * 0.4);
+    
+    gl_FragColor = vec4(finalColor, 1.0);
+}
+            </script>
+</shader-art>
+<script src="https://unpkg.com/shader-art" type="module"></script>
+</div>
+<!-- Hero Section -->
+<section class="flex flex-col md:flex-row items-center justify-between gap-xl">
+<div class="flex-1 flex flex-col gap-lg items-start">
+<h1 class="font-display-lg text-display-lg md:text-display-lg font-bold text-on-surface">
+                    Reserve Campus Parking <span class="text-[#E06C53] italic">In Seconds</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
+                    Skip the circling. Guarantee your spot before you arrive on campus with real-time availability and seamless mobile check-in.
+                </p>
+<div class="flex flex-wrap items-center gap-md mt-sm">
+<button class="bg-[#E06C53] text-white font-label-md text-label-md font-bold px-8 py-3 rounded-DEFAULT hover:opacity-90 transition-opacity flex items-center gap-sm shadow-sm">
+                        Book a Slot Now
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+<button class="font-label-md text-label-md font-bold px-8 py-3 rounded-DEFAULT border-2 border-[#8B5CF6] text-[#8B5CF6] hover:bg-surface-variant transition-colors flex items-center gap-sm">
+<span class="material-symbols-outlined text-sm">play_circle</span>
+                        Watch Demo
+                    </button>
+</div>
+<!-- Trust Metrics -->
+<div class="flex items-center gap-xl mt-md pt-md border-t border-outline-variant/50 w-full max-w-md">
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">5,000+</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Students</span>
+</div>
+<div class="w-px h-12 bg-outline-variant/50"></div>
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">98%</span>
+<span class="font-label-md text-label-md text-on-surface-variant">On-Time</span>
+</div>
+</div>
+</div>
+<div class="flex-1 w-full relative h-[400px] rounded-xl border card-shadow overflow-hidden flex items-center justify-center group bg-surface-container-lowest border-outline-variant">
+<img alt="3D isometric illustration of a smart campus parking lot" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVcpT5Q5BSSDNcqeQt1bvesnbnz6CiboPjSSL1h9QtCoEQbyBD9LdeSsyjPUAscmucS9U9I9gw9z5P4FiFYqsY8PWW_ArZduN7WldHx7K8zn5VoozM915gbw0vn-HOh__MHfW-pcHyN33r_nMdHBS5PVzoeg5FfLFJf2CD7tqn12-arqh9sPZf1aYyDw7OOjCs1gtV-gXBZwJSi5GTR9mib9acgA6n-9psv4_RjapoNPyK9X9ijM8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60"></div>
+</div>
+</section>
+<!-- How It Works Section -->
+<section class="flex flex-col gap-lg mt-xl">
+<div class="text-center max-w-2xl mx-auto mb-md">
+<h2 class="font-headline-lg text-headline-lg font-bold text-on-surface mb-sm">How It Works</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Three simple steps to secure your parking spot and get to class on time.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- Step 1 -->
+<div class="flex flex-col items-center text-center gap-md p-lg rounded-2xl border-2 border-[#8B5CF6] bg-[#F5F3FF]">
+<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center text-[#8B5CF6] mb-sm shadow-sm">
+<span class="material-symbols-outlined text-3xl">search</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold">1. Find a Spot</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Check real-time availability across all campus lots and choose your preferred zone.</p>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center text-center gap-md p-lg rounded-2xl border-2 border-[#10B981] bg-[#F0FDF4]">
+<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center text-[#10B981] mb-sm shadow-sm">
+<span class="material-symbols-outlined text-3xl">event_available</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold">2. Reserve Instantly</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Book your space for an hour, a day, or an entire semester with a few taps.</p>
+</div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center text-center gap-md p-lg rounded-2xl border-2 border-[#E06C53] bg-[#FFF1F2]">
+<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center text-[#E06C53] mb-sm shadow-sm">
+<span class="material-symbols-outlined text-3xl">directions_car</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold">3. Park &amp; Go</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Drive up, scan your digital permit via mobile check-in, and head to class.</p>
+</div>
+</div>
+</section>
+<!-- Interactive Map Preview -->
+<section class="flex flex-col gap-lg mt-xl bg-[#1E222A] rounded-3xl p-12">
+<div>
+<span class="text-[#8B5CF6] font-bold text-sm tracking-wider uppercase">Live Availability</span>
+<h2 class="font-headline-lg text-headline-lg font-bold text-white mb-sm">Interactive Campus Map</h2>
+</div>
+<div class="w-full h-[500px] rounded-xl border border-gray-700 relative overflow-hidden bg-gray-900">
+<!-- Simulated Map Background -->
+<div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, #4b5563 1px, transparent 0); background-size: 32px 32px;"></div>
+<!-- Zone Labels -->
+<div class="absolute top-1/4 left-1/4 bg-gray-800 border border-[#10B981] px-4 py-2 rounded-DEFAULT shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center gap-2 cursor-pointer transition-colors">
+<span class="w-3 h-3 rounded-full bg-[#10B981] shadow-[0_0_10px_#10B981]"></span>
+<span class="font-label-md text-white font-bold">Zone A (Core)</span>
+</div>
+<div class="absolute bottom-1/4 left-1/2 bg-gray-800 border border-[#E06C53] px-4 py-2 rounded-DEFAULT shadow-[0_0_15px_rgba(224,108,83,0.3)] flex items-center gap-2 cursor-pointer transition-colors">
+<span class="w-3 h-3 rounded-full bg-[#E06C53] shadow-[0_0_10px_#E06C53]"></span>
+<span class="font-label-md text-white font-bold">Zone B (Outer)</span>
+</div>
+<!-- Zoom Controls -->
+<div class="absolute bottom-6 right-6 flex flex-col gap-2">
+<button class="w-10 h-10 bg-gray-800 border border-gray-700 rounded-DEFAULT flex items-center justify-center text-white hover:bg-gray-700 transition-colors shadow-md">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="w-10 h-10 bg-gray-800 border border-gray-700 rounded-DEFAULT flex items-center justify-center text-white hover:bg-gray-700 transition-colors shadow-md">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<button class="w-10 h-10 bg-gray-800 border border-gray-700 rounded-DEFAULT flex items-center justify-center text-white hover:bg-gray-700 transition-colors shadow-md mt-2">
+<span class="material-symbols-outlined">my_location</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Feature Highlights (Bento Grid) -->
+<section class="flex flex-col gap-lg mt-xl">
+<h2 class="font-headline-lg text-headline-lg font-bold text-on-surface mb-sm">Why use Campus Parking?</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Card 1 -->
+<div class="rounded-xl border p-xl flex flex-col gap-md shadow-lg bg-[#F8FAFC] border-t-4 border-t-[#8B5CF6]">
+<div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center border border-outline-variant text-[#8B5CF6] mb-sm">
+<span class="material-symbols-outlined text-2xl">satellite_alt</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Real-time Availability</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow">
+                        Live updates on spot occupancy across all campus lots, preventing wasted time.
+                    </p>
+</div>
+<!-- Card 2 -->
+<div class="rounded-xl border p-xl flex flex-col gap-md shadow-lg bg-[#F8FAFC] border-t-4 border-t-[#10B981]">
+<div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center border border-outline-variant text-[#10B981] mb-sm">
+<span class="material-symbols-outlined text-2xl">smartphone</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Mobile Check-In</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow">
+                        Contactless entry using your phone. Just drive up and scan your digital permit.
+                    </p>
+</div>
+<!-- Card 3 -->
+<div class="rounded-xl border p-xl flex flex-col gap-md shadow-lg bg-[#F8FAFC] border-t-4 border-t-[#F59E0B]">
+<div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center border border-outline-variant text-[#F59E0B] mb-sm">
+<span class="material-symbols-outlined text-2xl">notifications_active</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Notifications</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow">
+                        Get alerts when your reservation is expiring or if new spots open in preferred zones.
+                    </p>
+</div>
+<!-- Card 4 -->
+<div class="rounded-xl border p-xl flex flex-col gap-md shadow-lg bg-[#F8FAFC] border-t-4 border-t-[#E06C53]">
+<div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center border border-outline-variant text-[#E06C53] mb-sm">
+<span class="material-symbols-outlined text-2xl">gavel</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Penalty Prevention</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow">
+                        Automated reminders and grace periods help you avoid costly campus parking tickets.
+                    </p>
+</div>
+</div>
+</section>
+</main>
+<!-- Social Proof: Testimonials -->
+<section class="w-full bg-[#F0F7F7] py-xl mt-xl">
+<div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop flex flex-col gap-lg">
+<h2 class="font-headline-lg text-headline-lg font-bold text-on-surface mb-sm text-center">What Students Say</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg max-w-5xl mx-auto w-full">
+<!-- Testimonial 1 -->
+<div class="rounded-xl border border-white p-lg flex flex-col gap-md shadow-lg bg-white relative">
+<p class="font-body-md text-on-surface-variant italic">"I used to spend 30 minutes looking for parking before class. Now I book my spot from my dorm and drive straight there. Absolute game changer."</p>
+<div class="flex items-center gap-md mt-auto pt-4">
+<div class="w-12 h-12 rounded-full border-2 border-[#8B5CF6] flex items-center justify-center text-on-surface font-bold text-lg bg-gray-50">AJ</div>
+<div class="flex flex-col">
+<span class="font-label-md text-on-surface font-bold">Alex Johnson</span>
+<span class="font-label-sm text-on-surface-variant">Senior, Engineering</span>
+</div>
+</div>
+</div>
+<!-- Testimonial 2 -->
+<div class="rounded-xl border border-white p-lg flex flex-col gap-md shadow-lg bg-white relative">
+<p class="font-body-md text-on-surface-variant italic">"The penalty prevention notifications have saved me so much money in parking tickets. Highly recommend the semester pass."</p>
+<div class="flex items-center gap-md mt-auto pt-4">
+<div class="w-12 h-12 rounded-full border-2 border-[#10B981] flex items-center justify-center text-on-surface font-bold text-lg bg-gray-50">SL</div>
+<div class="flex flex-col">
+<span class="font-label-md text-on-surface font-bold">Sarah Lee</span>
+<span class="font-label-sm text-on-surface-variant">Junior, Business</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Rate Calculator Widget -->
+<section class="w-full mt-xl flex justify-center pb-16 px-margin-mobile md:px-margin-desktop">
+<div class="rounded-xl p-xl flex flex-col gap-lg shadow-2xl w-full max-w-3xl bg-gradient-to-br from-[#2E1065] to-[#1E222A]">
+<div class="flex flex-col gap-xs">
+<h2 class="font-headline-lg text-headline-lg font-bold text-white">Quick Rate Calculator</h2>
+<p class="font-body-md text-body-md text-gray-300">Estimate your parking cost based on zone and duration.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-gray-300">Select Zone</label>
+<select class="w-full bg-white/10 border border-white/20 rounded-DEFAULT p-3 text-white focus:border-[#E06C53] focus:ring-1 focus:ring-[#E06C53] outline-none font-body-md text-body-md">
+<option class="text-black">Premium (Core Campus)</option>
+<option class="text-black">Standard (Outer Lots)</option>
+<option class="text-black">Economy (Stadium)</option>
+</select>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-gray-300">Duration</label>
+<select class="w-full bg-white/10 border border-white/20 rounded-DEFAULT p-3 text-white focus:border-[#E06C53] focus:ring-1 focus:ring-[#E06C53] outline-none font-body-md text-body-md">
+<option class="text-black">2 Hours</option>
+<option class="text-black">4 Hours</option>
+<option class="text-black">Full Day</option>
+<option class="text-black">Semester Pass</option>
+</select>
+</div>
+</div>
+<div class="bg-[#E06C53] shadow-[0_0_20px_rgba(224,108,83,0.5)] rounded-lg p-md flex justify-between items-center mt-md border border-white/10">
+<span class="font-label-md text-label-md text-white/90">Estimated Cost:</span>
+<span class="font-headline-lg text-headline-lg font-bold text-white">$8.50</span>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-bright border-t border-outline-variant py-8 mt-auto">
+<div class="w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md">
+<div class="flex items-center gap-sm">
+<img alt="Campus Parking Logo" class="w-6 h-6 rounded-sm opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARfx4AAg6axyle_bux0bSbu7kK1CevBtYelvLJRiHZavhMZK6tQyMn0D3jky85CzzcCw04G_O_FGO0_kasygFMogy0hr9BnJY_zBgUJHj77lGa6siZM6QUOrW7H08oX73yzzt8nGiDfKwIsOTkMuOhNS9Bym07pVd7ftSW7rkxpGRyO3diapT_uyNfQ9VMdyXpr3rZQLjitoGhNew9mNNH7pgADJpMwfsBYDB24yKb1eO_fWkfHqw"/>
+<span class="font-label-md text-label-md font-bold text-on-surface">Campus Parking © 2024</span>
+</div>
+<div class="flex items-center gap-lg">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Support</a>
+</div>
+</div>
+</footer>
+</body></html>
