@@ -177,6 +177,75 @@ function isValidEmail(value) {
 }
 
 /* ==========================================================================
+/* ==========================================================================
+   Mobile Navigation Menu Toggle
+   ========================================================================== */
+
+function initMobileMenu() {
+    // 1. landing.html mobile drawer
+    const landingBtn  = document.getElementById('mobileMenuBtn');
+    const landingMenu = document.getElementById('mobileNavMenu');
+
+    if (landingBtn && landingMenu) {
+        landingBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isHidden = landingMenu.classList.contains('hidden');
+            if (isHidden) {
+                landingMenu.classList.remove('hidden');
+                landingMenu.classList.add('flex');
+                landingBtn.setAttribute('aria-expanded', 'true');
+            } else {
+                landingMenu.classList.add('hidden');
+                landingMenu.classList.remove('flex');
+                landingBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        landingMenu.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                landingMenu.classList.add('hidden');
+                landingMenu.classList.remove('flex');
+                landingBtn.setAttribute('aria-expanded', 'false');
+            });
+        });
+    }
+
+    // 2. header.php mobile drawer
+    const phpBtn  = document.getElementById('navbarHamburger');
+    const phpMenu = document.getElementById('navbarMobileMenu');
+
+    if (phpBtn && phpMenu) {
+        phpBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = phpMenu.classList.contains('is-open');
+            if (isOpen) {
+                phpMenu.classList.remove('is-open');
+                phpMenu.setAttribute('aria-hidden', 'true');
+                phpBtn.setAttribute('aria-expanded', 'false');
+            } else {
+                phpMenu.classList.add('is-open');
+                phpMenu.setAttribute('aria-hidden', 'false');
+                phpBtn.setAttribute('aria-expanded', 'true');
+            }
+        });
+    }
+
+    // Close active mobile menus when clicking outside
+    document.addEventListener('click', function(e) {
+        if (landingBtn && landingMenu && !landingBtn.contains(e.target) && !landingMenu.contains(e.target)) {
+            landingMenu.classList.add('hidden');
+            landingMenu.classList.remove('flex');
+            landingBtn.setAttribute('aria-expanded', 'false');
+        }
+        if (phpBtn && phpMenu && !phpBtn.contains(e.target) && !phpMenu.contains(e.target)) {
+            phpMenu.classList.remove('is-open');
+            phpMenu.setAttribute('aria-hidden', 'true');
+            phpBtn.setAttribute('aria-expanded', 'false');
+        }
+    });
+}
+
+/* ==========================================================================
    Helpers
    ========================================================================== */
 
@@ -191,6 +260,8 @@ function formatDate(iso) {
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', function() {
+    initMobileMenu();
+
     const page = document.body.dataset.page || '';
 
     if (page === 'book-slot') {
