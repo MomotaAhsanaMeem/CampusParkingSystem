@@ -7,6 +7,17 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script>
+  (function() {
+    var saved = localStorage.getItem('theme');
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  })();
+</script>
+<link rel="stylesheet" href="assets/css/style.css"/>
 <script id="tailwind-config">
   tailwind.config = {
     darkMode: "class",
@@ -186,7 +197,7 @@
 <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#features">Features</a>
 <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#calculator">Pricing</a>
 <div class="flex items-center gap-md ml-4">
-<button aria-label="Toggle Theme" class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">dark_mode</button>
+<button aria-label="Toggle Theme" class="theme-toggle-btn material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-2 rounded-lg hover:bg-surface-variant">dark_mode</button>
 <a href="/parking-system/public/login.php" class="font-label-md text-label-md text-secondary bg-transparent border border-outline-variant rounded-DEFAULT px-4 py-2 hover:bg-surface-variant transition-colors inline-flex items-center justify-center">Log In</a>
 <a href="/parking-system/public/signup.php" class="font-label-md text-label-md bg-[#E06C53] text-white font-bold rounded-DEFAULT px-4 py-2 hover:opacity-90 transition-opacity inline-flex items-center justify-center">Sign Up</a>
 </div>
@@ -199,6 +210,10 @@
 <div id="mobileNavMenu" class="hidden md:hidden fixed top-16 left-0 w-full bg-white/95 backdrop-blur-md border-b border-[#8B5CF6]/20 z-40 p-4 shadow-lg flex-col gap-3">
 <a href="#features" class="mobile-nav-link font-label-md text-on-surface-variant hover:text-primary py-2 px-3 rounded-md hover:bg-surface-variant transition-colors">Features</a>
 <a href="#calculator" class="mobile-nav-link font-label-md text-on-surface-variant hover:text-primary py-2 px-3 rounded-md hover:bg-surface-variant transition-colors">Pricing</a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn font-label-md flex items-center gap-2 text-on-surface-variant hover:text-primary py-2 px-3 rounded-md hover:bg-surface-variant transition-colors cursor-pointer w-full text-left">
+<span class="material-symbols-outlined">dark_mode</span>
+<span class="theme-toggle-label">Dark Mode</span>
+</button>
 <div class="flex flex-col gap-2 pt-2 border-t border-outline-variant/30">
 <a href="/parking-system/public/login.php" class="font-label-md text-center text-secondary border border-outline-variant rounded-DEFAULT px-4 py-2.5 hover:bg-surface-variant transition-colors">Log In</a>
 <a href="/parking-system/public/signup.php" class="font-label-md text-center bg-[#E06C53] text-white font-bold rounded-DEFAULT px-4 py-2.5 hover:opacity-90 transition-opacity">Sign Up</a>

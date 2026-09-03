@@ -246,6 +246,49 @@ function initMobileMenu() {
 }
 
 /* ==========================================================================
+   Dark Mode Theme Toggle
+   ========================================================================== */
+
+function initThemeToggle() {
+    const toggleBtns = document.querySelectorAll('.theme-toggle-btn');
+    if (!toggleBtns.length) return;
+
+    function updateUI(isDark) {
+        toggleBtns.forEach(function(btn) {
+            const iconSpan = btn.classList.contains('material-symbols-outlined')
+                ? btn
+                : btn.querySelector('.material-symbols-outlined');
+            if (iconSpan) {
+                iconSpan.textContent = isDark ? 'light_mode' : 'dark_mode';
+            }
+            const labelSpan = btn.querySelector('.theme-toggle-label');
+            if (labelSpan) {
+                labelSpan.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+            }
+        });
+    }
+
+    const isDark = document.documentElement.classList.contains('dark');
+    updateUI(isDark);
+
+    toggleBtns.forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const currentlyDark = document.documentElement.classList.contains('dark');
+            if (currentlyDark) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                updateUI(false);
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                updateUI(true);
+            }
+        });
+    });
+}
+
+/* ==========================================================================
    Helpers
    ========================================================================== */
 
@@ -260,6 +303,7 @@ function formatDate(iso) {
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', function() {
+    initThemeToggle();
     initMobileMenu();
 
     const page = document.body.dataset.page || '';

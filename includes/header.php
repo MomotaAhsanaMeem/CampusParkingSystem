@@ -24,6 +24,18 @@ $current_file = basename($_SERVER['PHP_SELF']);
     <!-- Material Symbols (for icons matching landing.html) -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
 
+    <!-- Early theme init script to prevent FOUC -->
+    <script>
+      (function() {
+        var saved = localStorage.getItem('theme');
+        if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
+
     <!-- Primary stylesheet — all custom styling lives here -->
     <link rel="stylesheet" href="/parking-system/assets/css/style.css">
 
@@ -124,6 +136,9 @@ $current_file = basename($_SERVER['PHP_SELF']);
 
     <!-- Desktop nav -->
     <nav class="navbar-nav" role="navigation" aria-label="Primary">
+        <button aria-label="Toggle Theme" class="theme-toggle-btn material-symbols-outlined nav-link" style="cursor:pointer; background:none; border:none; padding:6px 10px;">
+            dark_mode
+        </button>
         <?php if ($is_authed): ?>
             <a href="/parking-system/public/dashboard.php"
                class="nav-link <?= $current_file === 'dashboard.php' ? 'nav-link--active' : '' ?>">
@@ -160,6 +175,10 @@ $current_file = basename($_SERVER['PHP_SELF']);
 
 <!-- Mobile Nav Drawer -->
 <div id="navbarMobileMenu" class="navbar-mobile-menu" aria-hidden="true">
+    <button aria-label="Toggle Theme" class="theme-toggle-btn mobile-nav-link flex items-center gap-2" style="cursor:pointer; background:none; border:none; width:100%; text-align:left;">
+        <span class="material-symbols-outlined">dark_mode</span>
+        <span class="theme-toggle-label">Dark Mode</span>
+    </button>
     <?php if ($is_authed): ?>
         <a href="/parking-system/public/dashboard.php"
            class="mobile-nav-link <?= $current_file === 'dashboard.php' ? 'mobile-nav-link--active' : '' ?>">
