@@ -134,7 +134,7 @@ $current_file = basename($_SERVER['PHP_SELF']);
                 Book a Slot
             </a>
             <span class="nav-link text-muted" style="cursor:default; font-size:13px;">
-                <?= htmlspecialchars($user['name'] ?? '') ?>
+                <?= htmlspecialchars($user['full_name'] ?? $user['name'] ?? '') ?>
             </span>
             <a href="/parking-system/public/logout.php" class="nav-link nav-link--cta">
                 Log Out
@@ -151,12 +151,41 @@ $current_file = basename($_SERVER['PHP_SELF']);
         <?php endif; ?>
     </nav>
 
-    <!-- Mobile hamburger (visual only for Update 1) -->
-    <button class="navbar-hamburger" aria-label="Open menu">
+    <!-- Mobile hamburger -->
+    <button class="navbar-hamburger" id="navbarHamburger" aria-label="Open menu" aria-expanded="false">
         <span class="material-symbols-outlined">menu</span>
     </button>
 
 </header>
+
+<!-- Mobile Nav Drawer -->
+<div id="navbarMobileMenu" class="navbar-mobile-menu" aria-hidden="true">
+    <?php if ($is_authed): ?>
+        <a href="/parking-system/public/dashboard.php"
+           class="mobile-nav-link <?= $current_file === 'dashboard.php' ? 'mobile-nav-link--active' : '' ?>">
+            Dashboard
+        </a>
+        <a href="/parking-system/public/book-slot.php"
+           class="mobile-nav-link <?= $current_file === 'book-slot.php' ? 'mobile-nav-link--active' : '' ?>">
+            Book a Slot
+        </a>
+        <div class="mobile-nav-user">
+            Logged in as <strong><?= htmlspecialchars($user['full_name'] ?? $user['name'] ?? '') ?></strong>
+        </div>
+        <a href="/parking-system/public/logout.php" class="mobile-nav-link mobile-nav-link--cta">
+            Log Out
+        </a>
+    <?php else: ?>
+        <a href="/parking-system/public/login.php"
+           class="mobile-nav-link <?= $current_file === 'login.php' ? 'mobile-nav-link--active' : '' ?>">
+            Log In
+        </a>
+        <a href="/parking-system/public/signup.php"
+           class="mobile-nav-link mobile-nav-link--cta">
+            Sign Up Free
+        </a>
+    <?php endif; ?>
+</div>
 
 <!-- All page content goes inside this wrapper -->
 <main id="main-content" class="flex-grow">
