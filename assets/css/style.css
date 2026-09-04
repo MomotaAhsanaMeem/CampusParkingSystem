@@ -417,17 +417,22 @@ img { max-width: 100%; display: block; }
 
 /* Dark form input (rate calculator) */
 .form-input--dark {
-    background: rgba(255,255,255,.12);
-    border-color: rgba(255,255,255,.25);
-    color: #fff;
+    background-color: #1E222A !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 8L1 3h10z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    padding-right: 36px !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    color: #FFFFFF !important;
 }
-.form-input--dark option {
-    background-color: #181C25;
-    color: #F8FAFC;
+.form-input--dark option,
+select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
 }
 .form-input--dark:focus {
-    border-color: var(--clr-primary);
-    box-shadow: 0 0 0 2px rgba(224,108,83,.40);
+    border-color: var(--clr-primary) !important;
+    box-shadow: 0 0 0 2px rgba(224,108,83,.40) !important;
 }
 
 .form-error {
@@ -1238,9 +1243,11 @@ html.dark select.form-input {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23f8fafc' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
 }
 
+html.dark .form-input--dark option,
+html.dark select option,
 html.dark select.form-input option {
-    background-color: #181C25;
-    color: #F8FAFC;
+    background-color: #181C25 !important;
+    color: #F8FAFC !important;
 }
 
 html.dark .data-table thead {
