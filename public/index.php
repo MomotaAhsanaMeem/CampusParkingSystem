@@ -30,16 +30,16 @@ require_once __DIR__ . '/../includes/header.php';
             varying vec2 v_texCoord; uniform float u_time;
             void main(){
                 vec2 uv=v_texCoord;
-                vec3 base=vec3(0.98,0.99,1.0);
-                vec3 violet=vec3(0.96,0.95,1.0);
-                vec3 teal=vec3(0.94,0.99,0.96);
+                vec3 base=vec3(0.97,0.98,0.99);
+                vec3 cyan=vec3(0.93,0.98,1.0);
+                vec3 teal=vec3(0.94,0.99,0.97);
                 float t=u_time*0.3;
                 vec2 p1=vec2(0.3+0.2*cos(t),0.3+0.2*sin(t*0.8));
                 vec2 p2=vec2(0.7+0.2*sin(t*0.9),0.7+0.2*cos(t*1.1));
                 float d1=smoothstep(0.8,0.,distance(uv,p1));
                 float d2=smoothstep(0.8,0.,distance(uv,p2));
-                vec3 c=mix(base,violet,d1*0.5);
-                c=mix(c,teal,d2*0.4);
+                vec3 c=mix(base,cyan,d1*0.45);
+                c=mix(c,teal,d2*0.35);
                 gl_FragColor=vec4(c,1.);
             }
         </script>
@@ -47,68 +47,65 @@ require_once __DIR__ . '/../includes/header.php';
     <script src="https://unpkg.com/shader-art" type="module"></script>
 </div>
 
-<!-- Sections 1–4 inside max-w-7xl — pt-24 clears the fixed 64px navbar -->
-<div class="pt-24 pb-16 px-margin-mobile md:px-margin-desktop w-full max-w-7xl mx-auto flex flex-col gap-xl">
+<!-- ── 1. Full-Bleed Modern Isometric Perspective Hero (Inspired by Urban Mockup) ── -->
+<section class="hero-fullbleed-section" aria-labelledby="heroTitle">
+    <!-- Background Canvas Layers (Dual Light & Dark Assets with Edge Blur & Top Fade) -->
+    <div class="hero-fullbleed-bg-wrapper" aria-hidden="true">
+        <img src="/parking-system/assets/images/hero-bg-isometric-light.jpg?v=<?= time() ?>"
+             alt=""
+             class="hero-fullbleed-bg-img hero-bg-light-only"
+             loading="eager" width="1920" height="1080">
+        <img src="/parking-system/assets/images/hero-bg-isometric-dark.jpg?v=<?= time() ?>"
+             alt=""
+             class="hero-fullbleed-bg-img hero-bg-dark-only"
+             loading="eager" width="1920" height="1080">
+        <div class="hero-fullbleed-top-fade" aria-hidden="true"></div>
+        <div class="hero-edge-blur-left" aria-hidden="true"></div>
+        <div class="hero-edge-blur-right" aria-hidden="true"></div>
+        <div class="hero-fullbleed-overlay" aria-hidden="true"></div>
+    </div>
 
-    <!-- ── 1. Hero ────────────────────────────────────────────── -->
-    <section class="flex flex-col md:flex-row items-center justify-between gap-xl"
-             aria-labelledby="heroTitle">
+    <!-- Centered Header overlay sitting on top negative space -->
+    <div class="hero-fullbleed-content">
+        <h1 class="hero-isometric-title" id="heroTitle">
+            Park anywhere,<br>move the way you want
+        </h1>
 
-        <div class="flex-1 flex flex-col gap-lg items-start">
+        <p class="hero-isometric-subtitle">
+            Reserve a guaranteed campus spot in minutes, cruise straight to your bay, and arrive on time with CampusPark.
+        </p>
 
-            <h1 class="hero-display" id="heroTitle">
-                Reserve Campus Parking
-                <span>In Seconds</span>
-            </h1>
+        <a href="/parking-system/public/signup.php" class="btn-pill-isometric">
+            <span>Reserve a Spot</span>
+        </a>
+    </div>
 
-            <p class="hero-body max-w-lg">
-                Skip the circling. Guarantee your spot before you arrive on campus
-                with real-time availability and seamless digital check-in.
-            </p>
+    <!-- Floating Perspective Trip Card hovering over the road -->
+    <div class="hero-fullbleed-floating-card">
+        <div class="hero-trip-label">Your Spot</div>
+        <div class="hero-trip-eta">Arriving in</div>
+        <div class="hero-trip-time">4 <span>min</span></div>
 
-            <div class="flex flex-wrap items-center gap-md mt-sm">
-                <a href="/parking-system/public/signup.php"
-                   class="btn btn-primary btn-lg flex items-center gap-sm">
-                    Book a Slot Now
-                    <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
-                </a>
-                <a href="/parking-system/public/login.php"
-                   class="btn btn-secondary btn-lg flex items-center gap-sm">
-                    <span class="material-symbols-outlined" style="font-size:18px;">login</span>
-                    Log In
-                </a>
-            </div>
-
-            <!-- Trust metrics -->
-            <div class="flex items-center gap-xl mt-md pt-md w-full max-w-md"
-                 style="border-top: 1px solid rgba(221,192,186,.5);"
-                 role="list" aria-label="Platform statistics">
-                <div role="listitem" class="flex flex-col">
-                    <span class="hero-stat-value">5,000+</span>
-                    <span class="hero-stat-label">Students</span>
-                </div>
-                <div aria-hidden="true" style="width:1px;height:48px;background:rgba(221,192,186,.5);"></div>
-                <div role="listitem" class="flex flex-col">
-                    <span class="hero-stat-value">98%</span>
-                    <span class="hero-stat-label">On-Time Rate</span>
-                </div>
-                <div aria-hidden="true" style="width:1px;height:48px;background:rgba(221,192,186,.5);"></div>
-                <div role="listitem" class="flex flex-col">
-                    <span class="hero-stat-value">3 Zones</span>
-                    <span class="hero-stat-label">Coverage</span>
-                </div>
-            </div>
-
+        <div class="hero-trip-car-box">
+            <img src="/parking-system/assets/images/hero-car-card.jpg?v=<?= time() ?>" alt="Electric vehicle" class="hero-trip-car-img">
         </div>
 
-        <!-- Hero image -->
-        <div class="flex-1 w-full hero-img-wrap">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVcpT5Q5BSSDNcqeQt1bvesnbnz6CiboPjSSL1h9QtCoEQbyBD9LdeSsyjPUAscmucS9U9I9gw9z5P4FiFYqsY8PWW_ArZduN7WldHx7K8zn5VoozM915gbw0vn-HOh__MHfW-pcHyN33r_nMdHBS5PVzoeg5FfLFJf2CD7tqn12-arqh9sPZf1aYyDw7OOjCs1gtV-gXBZwJSi5GTR9mib9acgA6n-9psv4_RjapoNPyK9X9ijM8"
-                 alt="3D isometric illustration of a smart campus parking lot">
-            <div class="hero-img-overlay"></div>
+        <div class="hero-trip-timeline">
+            <div class="hero-trip-progress-bar">
+                <div class="hero-trip-progress-fill"></div>
+                <div class="hero-trip-progress-dot" aria-hidden="true"></div>
+            </div>
+            <div class="hero-trip-steps">
+                <span class="hero-trip-step--active">Matched</span>
+                <span class="hero-trip-step--active">On the way</span>
+                <span>Arrived</span>
+            </div>
         </div>
+    </div>
+</section>
 
-    </section>
+<!-- Content Sections 2–4 inside max-w-7xl container -->
+<div class="pb-16 px-margin-mobile md:px-margin-desktop w-full max-w-7xl mx-auto flex flex-col gap-xl">
 
     <!-- ── 2. How It Works ────────────────────────────────────── -->
     <section class="flex flex-col gap-lg mt-xl" aria-labelledby="howWorksTitle">
@@ -122,8 +119,8 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-lg" role="list">
 
-            <article class="step-card step-card-violet" role="listitem">
-                <div class="step-icon" style="color:var(--clr-secondary);">
+            <article class="step-card step-card-cyan" role="listitem">
+                <div class="step-icon text-cyan">
                     <span class="material-symbols-outlined" style="font-size:30px;">search</span>
                 </div>
                 <h3 class="step-title">1. Find a Spot</h3>
@@ -134,7 +131,7 @@ require_once __DIR__ . '/../includes/header.php';
             </article>
 
             <article class="step-card step-card-emerald" role="listitem">
-                <div class="step-icon" style="color:var(--clr-success);">
+                <div class="step-icon text-emerald">
                     <span class="material-symbols-outlined" style="font-size:30px;">event_available</span>
                 </div>
                 <h3 class="step-title">2. Reserve Instantly</h3>
@@ -144,8 +141,8 @@ require_once __DIR__ . '/../includes/header.php';
                 </p>
             </article>
 
-            <article class="step-card step-card-terra" role="listitem">
-                <div class="step-icon" style="color:var(--clr-primary);">
+            <article class="step-card step-card-dark" role="listitem">
+                <div class="step-icon text-dark">
                     <span class="material-symbols-outlined" style="font-size:30px;">directions_car</span>
                 </div>
                 <h3 class="step-title">3. Park &amp; Go</h3>
@@ -179,10 +176,10 @@ require_once __DIR__ . '/../includes/header.php';
                     <span class="map-zone-dot" style="background:#fff;"></span> All Zones
                 </button>
                 <button class="map-zone-btn" data-zone="A" role="tab" aria-selected="false">
-                    <span class="map-zone-dot" style="background:#E06C53;"></span> Zone A (Core)
+                    <span class="map-zone-dot" style="background:#06B6D4;"></span> Zone A (Core)
                 </button>
                 <button class="map-zone-btn" data-zone="B" role="tab" aria-selected="false">
-                    <span class="map-zone-dot" style="background:#8B5CF6;"></span> Zone B (Outer)
+                    <span class="map-zone-dot" style="background:#6366F1;"></span> Zone B (Outer)
                 </button>
                 <button class="map-zone-btn" data-zone="C" role="tab" aria-selected="false">
                     <span class="map-zone-dot" style="background:#10B981;"></span> Zone C (Stadium)

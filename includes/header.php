@@ -15,11 +15,13 @@ $current_file = basename($_SERVER['PHP_SELF']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($page_title) ?> — CampusPark</title>
     <meta name="description" content="Reserve campus parking in seconds. CampusPark lets students and staff book dedicated spots across all university zones.">
+    <link rel="icon" type="image/jpeg" href="/parking-system/assets/images/logo.jpg">
+    <link rel="apple-touch-icon" href="/parking-system/assets/images/logo.jpg">
 
-    <!-- Geist font -->
+    <!-- Google Fonts: Plus Jakarta Sans (Display/Hero) & Geist -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Material Symbols (for icons matching landing.html) -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
@@ -40,8 +42,8 @@ $current_file = basename($_SERVER['PHP_SELF']);
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <!-- Primary stylesheet — all custom styling lives here -->
-    <link rel="stylesheet" href="/parking-system/assets/css/style.css">
+    <!-- Primary stylesheet — with cache busting -->
+    <link rel="stylesheet" href="/parking-system/assets/css/style.css?v=<?= file_exists($_SERVER['DOCUMENT_ROOT'] . '/parking-system/assets/css/style.css') ? filemtime($_SERVER['DOCUMENT_ROOT'] . '/parking-system/assets/css/style.css') : time() ?>">
 
     <!-- Tailwind CDN with same config as landing.html —
          used as fallback for trivial layout utilities (flex, gap-*, grid-cols-*, etc.)
@@ -53,12 +55,12 @@ $current_file = basename($_SERVER['PHP_SELF']);
         theme: {
           extend: {
             colors: {
-              "primary":               "#9f3c27",
+              "primary":               "#0891B2",
               "on-primary":            "#ffffff",
-              "primary-container":     "#822714",
-              "secondary":             "#6d28d9",
+              "primary-container":     "#0e7490",
+              "secondary":             "#06B6D4",
               "on-secondary":          "#ffffff",
-              "secondary-container":   "#5b21b6",
+              "secondary-container":   "#0891b2",
               "tertiary":              "#475569",
               "surface":               "#f7f9fb",
               "surface-bright":        "#f7f9fb",
@@ -77,7 +79,7 @@ $current_file = basename($_SERVER['PHP_SELF']);
               "outline-variant":       "#cbd5e1",
               "inverse-surface":       "#0f131b",
               "inverse-on-surface":    "#f8fafc",
-              "inverse-primary":       "#ff8a75",
+              "inverse-primary":       "#22d3ee",
               "error":                 "#b91c1c",
               "on-error":              "#ffffff",
               "error-container":       "#fef2f2",
@@ -134,7 +136,7 @@ $current_file = basename($_SERVER['PHP_SELF']);
 <header class="navbar" role="banner">
   <div class="navbar-inner">
     <a href="/parking-system/public/index.php" class="navbar-brand" aria-label="CampusPark home">
-        <div class="navbar-brand-icon" aria-hidden="true">P</div>
+        <img src="/parking-system/assets/images/logo.jpg" alt="CampusPark Logo" class="navbar-brand-logo" width="32" height="32">
         CampusPark
     </a>
 

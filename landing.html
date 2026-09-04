@@ -4,9 +4,11 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Campus Parking Reservation System</title>
+<link rel="icon" type="image/jpeg" href="assets/images/logo.jpg"/>
+<link rel="apple-touch-icon" href="assets/images/logo.jpg"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <script>
   (function() {
     var saved = localStorage.getItem('theme');
@@ -16,6 +18,7 @@
       document.documentElement.classList.remove('dark');
     }
   })();
+</script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <link rel="stylesheet" href="assets/css/style.css"/>
@@ -25,12 +28,12 @@
     theme: {
       extend: {
         "colors": {
-                "primary": "#9f3c27",
+                "primary": "#0891B2",
                 "on-primary": "#ffffff",
-                "primary-container": "#822714",
-                "secondary": "#6d28d9",
+                "primary-container": "#0e7490",
+                "secondary": "#06B6D4",
                 "on-secondary": "#ffffff",
-                "secondary-container": "#5b21b6",
+                "secondary-container": "#0891b2",
                 "tertiary": "#475569",
                 "surface": "#f7f9fb",
                 "surface-variant": "#e2e8f0",
@@ -49,7 +52,7 @@
                 "outline-variant": "#cbd5e1",
                 "inverse-surface": "#0f131b",
                 "inverse-on-surface": "#f8fafc",
-                "inverse-primary": "#ff8a75",
+                "inverse-primary": "#22d3ee",
                 "error": "#b91c1c",
                 "on-error": "#ffffff",
                 "error-container": "#fef2f2",
@@ -170,19 +173,19 @@
     </style>
 </head>
 <body data-page="landing" class="font-body-md text-body-md min-h-screen flex flex-col bg-background text-on-surface">
-<header class="bg-white/85 backdrop-blur-md border-b border-[#8B5CF6]/20 fixed top-0 left-0 w-full z-50 h-16">
+<header class="bg-white/85 backdrop-blur-md border-b border-black/[0.08] dark:border-white/[0.1] fixed top-0 left-0 w-full z-50 h-16">
 <div class="w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop flex items-center justify-between h-full">
 <a href="/parking-system/public/index.php" class="flex items-center gap-sm hover:opacity-90 transition-opacity">
-<img alt="Campus Parking Logo" class="w-8 h-8 rounded-DEFAULT object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARfx4AAg6axyle_bux0bSbu7kK1CevBtYelvLJRiHZavhMZK6tQyMn0D3jky85CzzcCw04G_O_FGO0_kasygFMogy0hr9BnJY_zBgUJHj77lGa6siZM6QUOrW7H08oX73yzzt8nGiDfKwIsOTkMuOhNS9Bym07pVd7ftSW7rkxpGRyO3diapT_uyNfQ9VMdyXpr3rZQLjitoGhNew9mNNH7pgADJpMwfsBYDB24yKb1eO_fWkfHqw"/>
-<span class="font-headline-md text-headline-md text-primary font-bold">Campus Parking</span>
+<img alt="CampusPark Logo" class="w-8 h-8 rounded-lg object-cover shadow-sm" src="assets/images/logo.jpg"/>
+<span class="font-headline-md text-headline-md text-on-surface font-bold">CampusPark</span>
 </a>
 <nav class="hidden md:flex items-center gap-lg">
 <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#features">Features</a>
 <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#calculator">Pricing</a>
 <div class="flex items-center gap-md ml-4">
 <button aria-label="Toggle Theme" class="theme-toggle-btn material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-2 rounded-lg hover:bg-surface-variant">dark_mode</button>
-<a href="/parking-system/public/login.php" class="font-label-md text-label-md text-secondary bg-transparent border border-outline-variant rounded-DEFAULT px-4 py-2 hover:bg-surface-variant transition-colors inline-flex items-center justify-center">Log In</a>
-<a href="/parking-system/public/signup.php" class="font-label-md text-label-md bg-[#E06C53] text-white font-bold rounded-DEFAULT px-4 py-2 hover:opacity-90 transition-opacity inline-flex items-center justify-center">Sign Up</a>
+<a href="/parking-system/public/login.php" class="font-label-md text-label-md text-on-surface bg-transparent border border-outline-variant rounded-full px-5 py-2 hover:bg-surface-variant transition-colors inline-flex items-center justify-center">Log In</a>
+<a href="/parking-system/public/signup.php" class="font-label-md text-label-md bg-[#0F172A] dark:bg-white dark:text-[#0F172A] text-white font-bold rounded-full px-5 py-2 hover:bg-[#1E293B] transition-all inline-flex items-center justify-center shadow-sm">Sign Up</a>
 </div>
 </nav>
 <button id="mobileMenuBtn" aria-label="Toggle Navigation Menu" aria-expanded="false" class="md:hidden text-on-surface-variant p-2 rounded-lg hover:bg-surface-variant transition-colors">
@@ -191,7 +194,7 @@
 </div>
 </header>
 <!-- Mobile Navigation Drawer -->
-<div id="mobileNavMenu" class="hidden md:hidden fixed top-16 left-0 w-full bg-white/95 backdrop-blur-md border-b border-[#8B5CF6]/20 z-40 p-4 shadow-lg flex-col gap-3">
+<div id="mobileNavMenu" class="hidden md:hidden fixed top-16 left-0 w-full bg-white/95 backdrop-blur-md border-b border-black/[0.08] dark:border-white/[0.1] z-40 p-4 shadow-lg flex-col gap-3">
 <a href="#features" class="mobile-nav-link font-label-md text-on-surface-variant hover:text-primary py-2 px-3 rounded-md hover:bg-surface-variant transition-colors">Features</a>
 <a href="#calculator" class="mobile-nav-link font-label-md text-on-surface-variant hover:text-primary py-2 px-3 rounded-md hover:bg-surface-variant transition-colors">Pricing</a>
 <button aria-label="Toggle Theme" class="theme-toggle-btn font-label-md flex items-center gap-2 text-on-surface-variant hover:text-primary py-2 px-3 rounded-md hover:bg-surface-variant transition-colors cursor-pointer w-full text-left">
@@ -199,102 +202,70 @@
 <span class="theme-toggle-label">Dark Mode</span>
 </button>
 <div class="flex flex-col gap-2 pt-2 border-t border-outline-variant/30">
-<a href="/parking-system/public/login.php" class="font-label-md text-center text-secondary border border-outline-variant rounded-DEFAULT px-4 py-2.5 hover:bg-surface-variant transition-colors">Log In</a>
-<a href="/parking-system/public/signup.php" class="font-label-md text-center bg-[#E06C53] text-white font-bold rounded-DEFAULT px-4 py-2.5 hover:opacity-90 transition-opacity">Sign Up</a>
+<a href="/parking-system/public/login.php" class="font-label-md text-center text-on-surface border border-outline-variant rounded-full px-4 py-2.5 hover:bg-surface-variant transition-colors">Log In</a>
+<a href="/parking-system/public/signup.php" class="font-label-md text-center bg-[#0F172A] dark:bg-white dark:text-[#0F172A] text-white font-bold rounded-full px-4 py-2.5 hover:bg-[#1E293B] transition-all">Sign Up</a>
 </div>
 </div>
-<!-- Main Content -->
-<main class="flex-grow pt-24 pb-16 px-margin-mobile md:px-margin-desktop w-full max-w-7xl mx-auto flex flex-col gap-2xl relative">
-<!-- Hero Background -->
-<div class="absolute inset-0 z-[-1] pointer-events-none opacity-50">
-<shader-art autoplay="" class="w-full h-full object-cover">
-<script data-size="2" name="position" type="buffer">
-                [-1, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, 1]
-            </script>
-<script data-size="2" name="uv" type="buffer">
-                [ 0, 1,  0,  0, 1,  0, 1,  0, 1, 1,  0, 1]
-            </script>
-<script type="vert">
-                precision highp float;
-                attribute vec2 position;
-                attribute vec2 uv;
-                varying vec2 v_texCoord;
-                void main() {
-                    gl_Position = vec4(position, 0.0, 1.0);
-                    v_texCoord = uv;
-                }
-            </script>
-<script type="frag">
-                precision highp float;
-varying vec2 v_texCoord;
-uniform float u_time;
-uniform vec2 u_resolution;
+<!-- ── 1. Full-Bleed Modern Isometric Perspective Hero (Inspired by Urban Mockup) ── -->
+<section class="hero-fullbleed-section" aria-labelledby="heroTitle">
+    <!-- Background Canvas Layers (Dual Light & Dark Assets with Edge Blur & Top Fade) -->
+    <div class="hero-fullbleed-bg-wrapper" aria-hidden="true" > 
+        <img src="assets/images/hero-bg-isometric-light.jpg?v=2"
+             alt=""
+             class="hero-fullbleed-bg-img hero-bg-light-only"
+             loading="eager" width="1920" height="1080">
+        <img src="assets/images/hero-bg-isometric-dark.jpg?v=2"
+             alt=""
+             class="hero-fullbleed-bg-img hero-bg-dark-only"
+             loading="eager" width="1920" height="1080">
+        <div class="hero-fullbleed-top-fade" aria-hidden="true"></div>
+        <div class="hero-edge-blur-left" aria-hidden="true"></div>
+        <div class="hero-edge-blur-right" aria-hidden="true"></div>
+        <div class="hero-fullbleed-overlay" aria-hidden="true"></div>
+    </div>
 
-void main() {
-    vec2 uv = v_texCoord;
-    
-    // Base light background
-    vec3 colorBase = vec3(0.98, 0.99, 1.0); // Very light slate/white
-    
-    // Tint colors for the mesh
-    vec3 colorViolet = vec3(0.96, 0.95, 1.0); // Pale Violet Tint (#F5F3FF)
-    vec3 colorTeal = vec3(0.94, 0.99, 0.96);   // Soft Teal Tint (#F0FDF4)
-    
-    float t = u_time * 0.3;
-    
-    // Moving blobs for the mesh effect
-    vec2 p1 = vec2(0.3 + 0.2 * cos(t), 0.3 + 0.2 * sin(t * 0.8));
-    vec2 p2 = vec2(0.7 + 0.2 * sin(t * 0.9), 0.7 + 0.2 * cos(t * 1.1));
-    
-    float d1 = smoothstep(0.8, 0.0, distance(uv, p1));
-    float d2 = smoothstep(0.8, 0.0, distance(uv, p2));
-    
-    vec3 finalColor = mix(colorBase, colorViolet, d1 * 0.5);
-    finalColor = mix(finalColor, colorTeal, d2 * 0.4);
-    
-    gl_FragColor = vec4(finalColor, 1.0);
-}
-            </script>
-</shader-art>
-<script src="https://unpkg.com/shader-art" type="module"></script>
-</div>
-<!-- Hero Section -->
-<section class="flex flex-col md:flex-row items-center justify-between gap-xl">
-<div class="flex-1 flex flex-col gap-lg items-start">
-<h1 class="font-display-lg text-display-lg md:text-display-lg font-bold text-on-surface">
-                    Reserve Campus Parking <span class="text-[#E06C53] italic">In Seconds</span>
-</h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
-                    Skip the circling. Guarantee your spot before you arrive on campus with real-time availability and seamless mobile check-in.
-                </p>
-<div class="flex flex-wrap items-center gap-md mt-sm">
-<a href="/parking-system/public/signup.php" class="bg-[#E06C53] text-white font-label-md text-label-md font-bold px-8 py-3 rounded-DEFAULT hover:opacity-90 transition-opacity inline-flex items-center gap-sm shadow-sm">
-                        Book a Slot Now
-                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
-</a>
-<a href="#features" class="font-label-md text-label-md font-bold px-8 py-3 rounded-DEFAULT border-2 border-[#8B5CF6] text-[#8B5CF6] hover:bg-surface-variant transition-colors inline-flex items-center gap-sm">
-<span class="material-symbols-outlined text-sm">play_circle</span>
-                        Explore Features
-                    </a>
-</div>
-<!-- Trust Metrics -->
-<div class="flex items-center gap-xl mt-md pt-md border-t border-outline-variant/50 w-full max-w-md">
-<div class="flex flex-col">
-<span class="font-headline-lg text-headline-lg font-bold text-on-surface">5,000+</span>
-<span class="font-label-md text-label-md text-on-surface-variant">Students</span>
-</div>
-<div class="w-px h-12 bg-outline-variant/50"></div>
-<div class="flex flex-col">
-<span class="font-headline-lg text-headline-lg font-bold text-on-surface">98%</span>
-<span class="font-label-md text-label-md text-on-surface-variant">On-Time</span>
-</div>
-</div>
-</div>
-<div class="flex-1 w-full hero-img-wrap">
-<img alt="3D isometric illustration of a smart campus parking lot" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVcpT5Q5BSSDNcqeQt1bvesnbnz6CiboPjSSL1h9QtCoEQbyBD9LdeSsyjPUAscmucS9U9I9gw9z5P4FiFYqsY8PWW_ArZduN7WldHx7K8zn5VoozM915gbw0vn-HOh__MHfW-pcHyN33r_nMdHBS5PVzoeg5FfLFJf2CD7tqn12-arqh9sPZf1aYyDw7OOjCs1gtV-gXBZwJSi5GTR9mib9acgA6n-9psv4_RjapoNPyK9X9ijM8"/>
-<div class="hero-img-overlay"></div>
-</div>
+    <!-- Centered Header overlay sitting on top negative space -->
+    <div class="hero-fullbleed-content">
+        <h1 class="hero-isometric-title" id="heroTitle">
+            Park anywhere,<br>move the way you want
+        </h1>
+
+        <p class="hero-isometric-subtitle">
+            Reserve a guaranteed campus spot in minutes, cruise straight to your bay, and arrive on time with CampusPark.
+        </p>
+
+        <a href="/parking-system/public/signup.php" class="btn-pill-isometric">
+            <span>Reserve a Spot</span>
+        </a>
+    </div>
+
+    <!-- Floating Perspective Trip Card hovering over the road -->
+    <div class="hero-fullbleed-floating-card">
+        <div class="hero-trip-label">Your Spot</div>
+        <div class="hero-trip-eta">Arriving in</div>
+        <div class="hero-trip-time">4 <span>min</span></div>
+
+        <div class="hero-trip-car-box">
+            <img src="assets/images/hero-car-card.jpg" alt="Electric vehicle" class="hero-trip-car-img">
+        </div>
+
+        <div class="hero-trip-timeline">
+            <div class="hero-trip-progress-bar">
+                <div class="hero-trip-progress-fill"></div>
+                <div class="hero-trip-progress-dot" aria-hidden="true"></div>
+            </div>
+            <div class="hero-trip-steps">
+                <span class="hero-trip-step--active">Matched</span>
+                <span class="hero-trip-step--active">On the way</span>
+                <span>Arrived</span>
+            </div>
+        </div>
+    </div>
 </section>
+
+<!-- Main Content -->
+<main class="flex-grow pb-16 px-margin-mobile md:px-margin-desktop w-full max-w-7xl mx-auto flex flex-col gap-2xl relative">
+
 <!-- How It Works Section -->
 <section id="features" class="flex flex-col gap-lg mt-xl">
 <div class="text-center max-w-2xl mx-auto mb-md">
@@ -303,24 +274,24 @@ void main() {
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
 <!-- Step 1 -->
-<div class="flex flex-col items-center text-center gap-md p-lg rounded-2xl border-2 border-[#8B5CF6] bg-[#F5F3FF]">
-<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center text-[#8B5CF6] mb-sm shadow-sm">
+<div class="flex flex-col items-center text-center gap-md p-lg rounded-2xl border-2 border-[#0891B2] bg-[#ECFEFF] dark:bg-[#06B6D4]/10">
+<div class="w-16 h-16 rounded-full bg-white dark:bg-[#141923] flex items-center justify-center text-[#0891B2] dark:text-[#22D3EE] mb-sm shadow-sm">
 <span class="material-symbols-outlined text-3xl">search</span>
 </div>
 <h3 class="font-headline-md text-headline-md text-on-surface font-bold">1. Find a Spot</h3>
 <p class="font-body-md text-body-md text-on-surface-variant">Check real-time availability across all campus lots and choose your preferred zone.</p>
 </div>
 <!-- Step 2 -->
-<div class="flex flex-col items-center text-center gap-md p-lg rounded-2xl border-2 border-[#10B981] bg-[#F0FDF4]">
-<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center text-[#10B981] mb-sm shadow-sm">
+<div class="flex flex-col items-center text-center gap-md p-lg rounded-2xl border-2 border-[#10B981] bg-[#F0FDF4] dark:bg-[#10B981]/10">
+<div class="w-16 h-16 rounded-full bg-white dark:bg-[#141923] flex items-center justify-center text-[#10B981] dark:text-[#34D399] mb-sm shadow-sm">
 <span class="material-symbols-outlined text-3xl">event_available</span>
 </div>
 <h3 class="font-headline-md text-headline-md text-on-surface font-bold">2. Reserve Instantly</h3>
 <p class="font-body-md text-body-md text-on-surface-variant">Book your space for an hour, a day, or an entire semester with a few taps.</p>
 </div>
 <!-- Step 3 -->
-<div class="flex flex-col items-center text-center gap-md p-lg rounded-2xl border-2 border-[#E06C53] bg-[#FFF1F2]">
-<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center text-[#E06C53] mb-sm shadow-sm">
+<div class="flex flex-col items-center text-center gap-md p-lg rounded-2xl border-2 border-[#0F172A] dark:border-white/20 bg-[#F8FAFC] dark:bg-white/5">
+<div class="w-16 h-16 rounded-full bg-white dark:bg-[#141923] flex items-center justify-center text-[#0F172A] dark:text-white mb-sm shadow-sm">
 <span class="material-symbols-outlined text-3xl">directions_car</span>
 </div>
 <h3 class="font-headline-md text-headline-md text-on-surface font-bold">3. Park &amp; Go</h3>
@@ -332,7 +303,7 @@ void main() {
 <section class="section-dark mt-xl flex flex-col gap-lg" aria-labelledby="mapTitle">
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
 <div>
-<span class="text-[#8B5CF6] font-bold text-sm tracking-wider uppercase">Live Availability</span>
+<span class="text-[#0891B2] dark:text-[#22D3EE] font-bold text-sm tracking-wider uppercase">Live Availability</span>
 <h2 id="mapTitle" class="font-headline-lg text-headline-lg font-bold text-white mb-sm">Interactive Campus Map</h2>
 <p class="text-[#d1d5db] text-sm mt-1">
 Explore designated campus zones, check real-time capacity, and reserve parking in seconds.
@@ -344,10 +315,10 @@ Explore designated campus zones, check real-time capacity, and reserve parking i
 <span class="map-zone-dot" style="background:#fff;"></span> All Zones
 </button>
 <button class="map-zone-btn" data-zone="A" role="tab" aria-selected="false">
-<span class="map-zone-dot" style="background:#E06C53;"></span> Zone A (Core)
+<span class="map-zone-dot" style="background:#06B6D4;"></span> Zone A (Core)
 </button>
 <button class="map-zone-btn" data-zone="B" role="tab" aria-selected="false">
-<span class="map-zone-dot" style="background:#8B5CF6;"></span> Zone B (Outer)
+<span class="map-zone-dot" style="background:#6366F1;"></span> Zone B (Outer)
 </button>
 <button class="map-zone-btn" data-zone="C" role="tab" aria-selected="false">
 <span class="map-zone-dot" style="background:#10B981;"></span> Zone C (Stadium)
@@ -397,8 +368,8 @@ Explore designated campus zones, check real-time capacity, and reserve parking i
 <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface mb-sm">Why use Campus Parking?</h2>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
 <!-- Card 1 -->
-<div class="rounded-xl border p-xl flex flex-col gap-md shadow-lg bg-[#F8FAFC] border-t-4 border-t-[#8B5CF6]">
-<div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center border border-outline-variant text-[#8B5CF6] mb-sm">
+<div class="rounded-xl border p-xl flex flex-col gap-md shadow-lg bg-[#F8FAFC] dark:bg-[#141923] border-t-4 border-t-[#0891B2]">
+<div class="w-12 h-12 rounded-lg bg-white dark:bg-[#0F131B] flex items-center justify-center border border-outline-variant text-[#0891B2] dark:text-[#22D3EE] mb-sm">
 <span class="material-symbols-outlined text-2xl">satellite_alt</span>
 </div>
 <h3 class="font-headline-md text-headline-md text-on-surface">Real-time Availability</h3>
@@ -407,8 +378,8 @@ Explore designated campus zones, check real-time capacity, and reserve parking i
                     </p>
 </div>
 <!-- Card 2 -->
-<div class="rounded-xl border p-xl flex flex-col gap-md shadow-lg bg-[#F8FAFC] border-t-4 border-t-[#10B981]">
-<div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center border border-outline-variant text-[#10B981] mb-sm">
+<div class="rounded-xl border p-xl flex flex-col gap-md shadow-lg bg-[#F8FAFC] dark:bg-[#141923] border-t-4 border-t-[#10B981]">
+<div class="w-12 h-12 rounded-lg bg-white dark:bg-[#0F131B] flex items-center justify-center border border-outline-variant text-[#10B981] mb-sm">
 <span class="material-symbols-outlined text-2xl">smartphone</span>
 </div>
 <h3 class="font-headline-md text-headline-md text-on-surface">Mobile Check-In</h3>
@@ -417,8 +388,8 @@ Explore designated campus zones, check real-time capacity, and reserve parking i
                     </p>
 </div>
 <!-- Card 3 -->
-<div class="rounded-xl border p-xl flex flex-col gap-md shadow-lg bg-[#F8FAFC] border-t-4 border-t-[#F59E0B]">
-<div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center border border-outline-variant text-[#F59E0B] mb-sm">
+<div class="rounded-xl border p-xl flex flex-col gap-md shadow-lg bg-[#F8FAFC] dark:bg-[#141923] border-t-4 border-t-[#F59E0B]">
+<div class="w-12 h-12 rounded-lg bg-white dark:bg-[#0F131B] flex items-center justify-center border border-outline-variant text-[#F59E0B] mb-sm">
 <span class="material-symbols-outlined text-2xl">notifications_active</span>
 </div>
 <h3 class="font-headline-md text-headline-md text-on-surface">Notifications</h3>
@@ -427,8 +398,8 @@ Explore designated campus zones, check real-time capacity, and reserve parking i
                     </p>
 </div>
 <!-- Card 4 -->
-<div class="rounded-xl border p-xl flex flex-col gap-md shadow-lg bg-[#F8FAFC] border-t-4 border-t-[#E06C53]">
-<div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center border border-outline-variant text-[#E06C53] mb-sm">
+<div class="rounded-xl border p-xl flex flex-col gap-md shadow-lg bg-[#F8FAFC] dark:bg-[#141923] border-t-4 border-t-[#0F172A] dark:border-t-white/40">
+<div class="w-12 h-12 rounded-lg bg-white dark:bg-[#0F131B] flex items-center justify-center border border-outline-variant text-[#0F172A] dark:text-white mb-sm">
 <span class="material-symbols-outlined text-2xl">gavel</span>
 </div>
 <h3 class="font-headline-md text-headline-md text-on-surface">Penalty Prevention</h3>
@@ -440,15 +411,15 @@ Explore designated campus zones, check real-time capacity, and reserve parking i
 </section>
 </main>
 <!-- Social Proof: Testimonials -->
-<section class="w-full bg-[#F0F7F7] py-xl mt-xl">
+<section class="w-full bg-[#F0F7F7] dark:bg-[#0B0F17] py-xl mt-xl">
 <div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop flex flex-col gap-lg">
 <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface mb-sm text-center">What Students Say</h2>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-lg max-w-5xl mx-auto w-full">
 <!-- Testimonial 1 -->
-<div class="rounded-xl border border-white p-lg flex flex-col gap-md shadow-lg bg-white relative">
+<div class="rounded-xl border border-white dark:border-white/10 p-lg flex flex-col gap-md shadow-lg bg-white dark:bg-[#141923] relative">
 <p class="font-body-md text-on-surface-variant italic">"I used to spend 30 minutes looking for parking before class. Now I book my spot from my dorm and drive straight there. Absolute game changer."</p>
 <div class="flex items-center gap-md mt-auto pt-4">
-<div class="w-12 h-12 rounded-full border-2 border-[#8B5CF6] flex items-center justify-center text-on-surface font-bold text-lg bg-gray-50">AJ</div>
+<div class="w-12 h-12 rounded-full border-2 border-[#0891B2] dark:border-[#22D3EE] flex items-center justify-center text-on-surface font-bold text-lg bg-gray-50 dark:bg-[#0F131B]">AJ</div>
 <div class="flex flex-col">
 <span class="font-label-md text-on-surface font-bold">Alex Johnson</span>
 <span class="font-label-sm text-on-surface-variant">Senior, Engineering</span>
@@ -456,10 +427,10 @@ Explore designated campus zones, check real-time capacity, and reserve parking i
 </div>
 </div>
 <!-- Testimonial 2 -->
-<div class="rounded-xl border border-white p-lg flex flex-col gap-md shadow-lg bg-white relative">
+<div class="rounded-xl border border-white dark:border-white/10 p-lg flex flex-col gap-md shadow-lg bg-white dark:bg-[#141923] relative">
 <p class="font-body-md text-on-surface-variant italic">"The penalty prevention notifications have saved me so much money in parking tickets. Highly recommend the semester pass."</p>
 <div class="flex items-center gap-md mt-auto pt-4">
-<div class="w-12 h-12 rounded-full border-2 border-[#10B981] flex items-center justify-center text-on-surface font-bold text-lg bg-gray-50">SL</div>
+<div class="w-12 h-12 rounded-full border-2 border-[#10B981] flex items-center justify-center text-on-surface font-bold text-lg bg-gray-50 dark:bg-[#0F131B]">SL</div>
 <div class="flex flex-col">
 <span class="font-label-md text-on-surface font-bold">Sarah Lee</span>
 <span class="font-label-sm text-on-surface-variant">Junior, Business</span>
@@ -471,7 +442,7 @@ Explore designated campus zones, check real-time capacity, and reserve parking i
 </section>
 <!-- Rate Calculator Widget -->
 <section id="calculator" class="w-full mt-xl flex justify-center pb-16 px-margin-mobile md:px-margin-desktop">
-<div class="rounded-xl p-xl flex flex-col gap-lg shadow-2xl w-full max-w-3xl bg-gradient-to-br from-[#2E1065] to-[#1E222A]">
+<div class="rounded-xl p-xl flex flex-col gap-lg shadow-2xl w-full max-w-3xl bg-gradient-to-br from-[#0B0F17] to-[#131A26] border border-white/10">
 <div class="flex flex-col gap-xs">
 <h2 class="font-headline-lg text-headline-lg font-bold text-white">Quick Rate Calculator</h2>
 <p class="font-body-md text-body-md text-gray-300">Estimate your parking cost based on zone and duration.</p>
@@ -479,7 +450,7 @@ Explore designated campus zones, check real-time capacity, and reserve parking i
 <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
 <div class="flex flex-col gap-sm">
 <label class="font-label-md text-label-md text-gray-300" for="calcZone">Select Zone</label>
-<select id="calcZone" class="w-full form-input form-input--dark border border-white/20 rounded-DEFAULT p-3 focus:border-[#E06C53] focus:ring-1 focus:ring-[#E06C53] outline-none font-body-md text-body-md">
+<select id="calcZone" class="w-full form-input form-input--dark border border-white/20 rounded-DEFAULT p-3 focus:border-[#06B6D4] focus:ring-1 focus:ring-[#06B6D4] outline-none font-body-md text-body-md">
 <option value="4">Premium (Core Campus) — $4/hr</option>
 <option value="2">Standard (Outer Lots) — $2/hr</option>
 <option value="1">Economy (Stadium) — $1/hr</option>
@@ -487,7 +458,7 @@ Explore designated campus zones, check real-time capacity, and reserve parking i
 </div>
 <div class="flex flex-col gap-sm">
 <label class="font-label-md text-label-md text-gray-300" for="calcDuration">Duration</label>
-<select id="calcDuration" class="w-full form-input form-input--dark border border-white/20 rounded-DEFAULT p-3 focus:border-[#E06C53] focus:ring-1 focus:ring-[#E06C53] outline-none font-body-md text-body-md">
+<select id="calcDuration" class="w-full form-input form-input--dark border border-white/20 rounded-DEFAULT p-3 focus:border-[#06B6D4] focus:ring-1 focus:ring-[#06B6D4] outline-none font-body-md text-body-md">
 <option value="2">2 Hours</option>
 <option value="4">4 Hours</option>
 <option value="8">Full Day (8 Hours)</option>
@@ -495,9 +466,9 @@ Explore designated campus zones, check real-time capacity, and reserve parking i
 </select>
 </div>
 </div>
-<div class="bg-[#E06C53] shadow-[0_0_20px_rgba(224,108,83,0.5)] rounded-lg p-md flex justify-between items-center mt-md border border-white/10">
+<div class="bg-[#0B0F17] shadow-[0_0_24px_rgba(6,182,212,0.25)] rounded-lg p-md flex justify-between items-center mt-md border border-[#06B6D4]/40">
 <span class="font-label-md text-label-md text-white/90">Estimated Cost:</span>
-<span class="font-headline-lg text-headline-lg font-bold text-white" id="rateOutput">$8.00</span>
+<span class="font-headline-lg text-headline-lg font-bold text-[#22D3EE]" id="rateOutput">$8.00</span>
 </div>
 </div>
 </section>
