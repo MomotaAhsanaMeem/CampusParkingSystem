@@ -1,53 +1,77 @@
 ---
-name: Kinetic Campus Light
-colors:
+name: Kinetic Campus System
+light_colors:
   surface: '#f7f9fb'
-  surface-dim: '#d8dadc'
+  surface-dim: '#cbd5e1'
   surface-bright: '#f7f9fb'
   surface-container-lowest: '#ffffff'
-  surface-container-low: '#f2f4f6'
-  surface-container: '#eceef0'
-  surface-container-high: '#e6e8ea'
-  surface-container-highest: '#e0e3e5'
-  on-surface: '#191c1e'
-  on-surface-variant: '#57423d'
-  inverse-surface: '#2d3133'
-  inverse-on-surface: '#eff1f3'
-  outline: '#8a726c'
-  outline-variant: '#ddc0ba'
-  surface-tint: '#a23e29'
+  surface-container-low: '#f1f5f9'
+  surface-container: '#e2e8f0'
+  surface-container-high: '#cbd5e1'
+  surface-container-highest: '#94a3b8'
+  on-surface: '#0f172a'
+  on-surface-variant: '#475569'
+  inverse-surface: '#0f131b'
+  inverse-on-surface: '#f8fafc'
+  outline: '#64748b'
+  outline-variant: '#cbd5e1'
+  surface-tint: '#9f3c27'
   primary: '#9f3c27'
   on-primary: '#ffffff'
-  primary-container: '#bf533c'
-  on-primary-container: '#fffbff'
-  inverse-primary: '#ffb4a4'
-  secondary: '#6b38d4'
+  primary-container: '#822714'
+  on-primary-container: '#ffffff'
+  inverse-primary: '#ff8a75'
+  secondary: '#6d28d9'
   on-secondary: '#ffffff'
-  secondary-container: '#8455ef'
-  on-secondary-container: '#fffbff'
-  tertiary: '#585c65'
+  secondary-container: '#5b21b6'
+  on-secondary-container: '#ffffff'
+  tertiary: '#475569'
   on-tertiary: '#ffffff'
-  tertiary-container: '#71747e'
-  on-tertiary-container: '#fefcff'
-  error: '#ba1a1a'
+  tertiary-container: '#334155'
+  on-tertiary-container: '#ffffff'
+  error: '#b91c1c'
   on-error: '#ffffff'
-  error-container: '#ffdad6'
-  on-error-container: '#93000a'
-  primary-fixed: '#ffdad3'
-  primary-fixed-dim: '#ffb4a4'
-  on-primary-fixed: '#3e0500'
-  on-primary-fixed-variant: '#822714'
-  secondary-fixed: '#e9ddff'
-  secondary-fixed-dim: '#d0bcff'
-  on-secondary-fixed: '#23005c'
-  on-secondary-fixed-variant: '#5516be'
-  tertiary-fixed: '#dfe2ed'
-  tertiary-fixed-dim: '#c3c6d1'
-  on-tertiary-fixed: '#181c23'
-  on-tertiary-fixed-variant: '#434750'
+  error-container: '#fef2f2'
+  on-error-container: '#991b1b'
   background: '#f7f9fb'
-  on-background: '#191c1e'
-  surface-variant: '#e0e3e5'
+  on-background: '#0f172a'
+  surface-variant: '#e2e8f0'
+dark_colors:
+  background: '#0f131b'
+  on-background: '#f8fafc'
+  surface: '#181c25'
+  surface-dim: '#0f131b'
+  surface-bright: '#1e222a'
+  surface-container-lowest: '#080a0f'
+  surface-container-low: '#141822'
+  surface-container: '#181c25'
+  surface-container-high: '#1e222a'
+  surface-container-highest: '#282e3d'
+  on-surface: '#f8fafc'
+  on-surface-variant: '#cbd5e1'
+  inverse-surface: '#f8fafc'
+  inverse-on-surface: '#0f172a'
+  outline: '#94a3b8'
+  outline-variant: 'rgba(255, 255, 255, 0.15)'
+  surface-tint: '#ff8a75'
+  primary: '#ff8a75'
+  on-primary: '#0f131b'
+  primary-container: '#d8583b'
+  on-primary-container: '#ffffff'
+  inverse-primary: '#9f3c27'
+  secondary: '#c4b5fd'
+  on-secondary: '#0f131b'
+  secondary-container: '#8b5cf6'
+  on-secondary-container: '#ffffff'
+  tertiary: '#cbd5e1'
+  on-tertiary: '#0f131b'
+  tertiary-container: '#475569'
+  on-tertiary-container: '#f8fafc'
+  error: '#fca5a5'
+  on-error: '#450a0a'
+  error-container: '#450a0a'
+  on-error-container: '#fecaca'
+  surface-variant: '#1e222a'
 typography:
   display:
     fontFamily: Geist
@@ -112,23 +136,25 @@ spacing:
 ---
 
 ## Brand & Style
-The design system focuses on a high-energy, academic, and technical atmosphere tailored for modern learning environments. The brand personality is efficient, intellectually stimulating, and forward-thinking. It targets students, educators, and researchers who require a high-utility interface that remains visually engaging.
+The design system focuses on a high-energy, academic, and technical atmosphere tailored for modern learning environments. The brand personality is efficient, intellectually stimulating, and forward-thinking. It targets students, educators, and researchers who require a high-utility interface that remains visually engaging across both Light and Dark themes.
 
 The design style is a hybrid of **Minimalism** and **Modern Corporate**, utilizing generous white space and high-contrast typography to ensure readability, while incorporating vibrant accent colors for an energetic, "kinetic" feel. The interface prioritizes clarity and functional density, ensuring that complex information remains digestible through clear visual hierarchies and subtle tactile feedback.
 
 ## Colors
-The palette is centered on a clean, professional base with high-visibility accents.
+The palette is centered on a clean, professional base with high-visibility accents, fully specified for both **Kinetic Campus Light** and **Kinetic Campus Dark** themes.
 
-- **Primary (Vibrant Terracotta):** Used for critical actions, alerts, and primary branding. On the light background, this hue is adjusted for optimal WCAG 2.1 compliance while maintaining its energetic warmth.
-- **Secondary (Soft Electric Violet):** Reserved for active states, progress indicators, and navigational highlights. This adds a "kinetic" digital feel to the academic context.
-- **Tertiary (Deep Slate):** The foundational color for all primary text, ensuring maximum legibility and a grounded, professional tone.
-- **Neutral/Background:** An off-white (#F8FAFC) creates a soft canvas that reduces eye strain compared to pure white, while **Surface** (#FFFFFF) creates distinct physical layers for content cards.
+- **Primary (Vibrant Terracotta - #E06C53 / #9F3C27):** Used for critical actions, alerts, and primary branding. Maintains energetic warmth while meeting WCAG 2.1 contrast standards.
+- **Secondary (Soft Electric Violet - #8B5CF6 / #D0BCFF):** Reserved for active states, progress indicators, focused fields, and navigational highlights.
+- **Tertiary (Deep Slate / Crisp Light Slate):** The foundational color for secondary text and structural markers.
+- **Neutral / Background:** 
+  - *Light Theme:* An off-white (#F7F9FB) canvas with crisp white cards (#FFFFFF).
+  - *Dark Theme:* A Deep Obsidian Slate (#0F131B) canvas with dark glass surface containers (#141822 / #181C25 / #1E222A) and subtle glowing accents.
 
 ## Typography
 The design system utilizes **Geist** exclusively to convey a technical, developer-friendly, and precise aesthetic. 
 
 - **Headlines:** Use Bold and SemiBold weights with tighter letter-spacing to create a strong visual anchor.
-- **Body:** Standardized at 16px for optimal reading, utilizing the regular weight for maximum clarity against the light background.
+- **Body:** Standardized at 16px for optimal reading, utilizing high contrast against both light (#191C1E) and dark (#E0E3E5) backgrounds.
 - **Labels:** Use Medium and SemiBold weights. Small labels often utilize uppercase styling to distinguish meta-data from body content.
 - **Scaling:** On mobile devices, display and large headline sizes scale down by approximately 25% to maintain composition integrity within narrower viewports.
 
@@ -142,12 +168,12 @@ This design system employs a **Fluid Grid** approach based on an 8px spatial rhy
 Spacing should be applied using the defined increments to maintain mathematical harmony. Components like cards and sections should use `md` (24px) for internal padding to ensure a breathable, "campus" feel.
 
 ## Elevation & Depth
-Elevation is primarily achieved through **Low-Contrast Outlines** and subtle tonal layering rather than heavy shadows.
+Elevation is achieved through **Low-Contrast Outlines** and subtle tonal layering rather than heavy shadows.
 
-- **Level 0 (Background):** #F8FAFC. The lowest layer.
-- **Level 1 (Cards/Surfaces):** #FFFFFF with a 1px solid border of #E2E8F0. No shadow is applied in the default state to maintain a clean, flat aesthetic.
-- **Level 2 (Hover/Active):** When an element is interacted with, apply a very soft, diffused shadow: `0 4px 12px rgba(30, 34, 42, 0.05)` and increase the border contrast slightly.
-- **Level 3 (Modals/Popovers):** Higher contrast borders and a more pronounced shadow to separate the element from the underlying UI: `0 12px 32px rgba(30, 34, 42, 0.1)`.
+- **Level 0 (Background):** #F7F9FB (Light) / #0F131B (Dark). The lowest layer.
+- **Level 1 (Cards/Surfaces):** #FFFFFF (Light) / #181C25 (Dark) with a 1px solid border (#E2E8F0 in light, `rgba(255, 255, 255, 0.08)` in dark).
+- **Level 2 (Hover/Active):** Soft diffused shadow (`0 4px 12px rgba(30, 34, 42, 0.05)` in light, `0 4px 16px rgba(0, 0, 0, 0.4)` in dark) with subtle accent border glow.
+- **Level 3 (Modals/Popovers):** Higher contrast borders and pronounced separation (`0 12px 32px rgba(30, 34, 42, 0.1)` in light, `0 12px 32px rgba(0, 0, 0, 0.6)` in dark).
 
 ## Shapes
 The shape language follows a "Round Eight" philosophy, which aligns with the 8px spacing system. 
@@ -156,12 +182,10 @@ The shape language follows a "Round Eight" philosophy, which aligns with the 8px
 - **Medium Components (Cards, Modals):** 1rem (16px) radius.
 - **Large Components (Sections, Hero Containers):** 1.5rem (24px) radius.
 
-This consistency in curvature softens the technical nature of the Geist typeface, making the academic environment feel more approachable and modern.
-
 ## Components
-- **Buttons:** Primary buttons use a solid Terracotta (#E06C53) background with white text. Secondary buttons use a white background with a Slate (#1E222A) border. Tertiary/Ghost buttons use Slate text with no background.
-- **Input Fields:** 1px border (#E2E8F0) that transitions to Electric Violet (#8B5CF6) on focus. Labels sit above the field in Label-MD styling.
-- **Cards:** Pure white background, 1px border (#E2E8F0), and 24px padding. Titles within cards should use Headline-MD.
-- **Chips/Tags:** Small, rounded-pill shapes with a light gray background (#F1F5F9) and Slate text. Active/Selected chips use a Violet tint (#EDE9FE) with Violet text (#8B5CF6).
-- **Lists:** Clean rows separated by thin 1px lines (#E2E8F0). Hover states for list items should utilize a subtle background shift to #F8FAFC.
-- **Checkboxes & Radios:** Use Electric Violet for the checked state to differentiate functional selection from primary "action" (Terracotta).
+- **Buttons:** Primary buttons use solid Terracotta (#E06C53) background with white text. Secondary buttons use transparent/white background with Electric Violet (#8B5CF6) border. Ghost buttons use subtle hover shifts.
+- **Input Fields:** 1px border (#E2E8F0 in light, `rgba(255, 255, 255, 0.12)` in dark) transitioning to Electric Violet (#8B5CF6) on focus.
+- **Cards:** Crisp surface layer, 1px border, and 24px padding. Titles use Headline-MD.
+- **Chips/Tags & Badges:** Rounded pill shapes with distinct status color fills in light mode and deep ambient fills in dark mode.
+- **Lists & Tables:** Clean rows separated by thin 1px dividers with subtle hover highlights (`#F8FAFC` in light, `#1E222A` in dark).
+- **Checkboxes & Radios:** Use Electric Violet for checked state to differentiate selection from primary action.
