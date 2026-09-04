@@ -445,26 +445,26 @@ void main() {
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
 <div class="flex flex-col gap-sm">
-<label class="font-label-md text-label-md text-gray-300">Select Zone</label>
-<select class="w-full bg-white/10 border border-white/20 rounded-DEFAULT p-3 text-white focus:border-[#E06C53] focus:ring-1 focus:ring-[#E06C53] outline-none font-body-md text-body-md">
-<option class="text-black">Premium (Core Campus)</option>
-<option class="text-black">Standard (Outer Lots)</option>
-<option class="text-black">Economy (Stadium)</option>
+<label class="font-label-md text-label-md text-gray-300" for="calcZone">Select Zone</label>
+<select id="calcZone" class="w-full form-input form-input--dark border border-white/20 rounded-DEFAULT p-3 text-white focus:border-[#E06C53] focus:ring-1 focus:ring-[#E06C53] outline-none font-body-md text-body-md">
+<option value="4">Premium (Core Campus) — $4/hr</option>
+<option value="2">Standard (Outer Lots) — $2/hr</option>
+<option value="1">Economy (Stadium) — $1/hr</option>
 </select>
 </div>
 <div class="flex flex-col gap-sm">
-<label class="font-label-md text-label-md text-gray-300">Duration</label>
-<select class="w-full bg-white/10 border border-white/20 rounded-DEFAULT p-3 text-white focus:border-[#E06C53] focus:ring-1 focus:ring-[#E06C53] outline-none font-body-md text-body-md">
-<option class="text-black">2 Hours</option>
-<option class="text-black">4 Hours</option>
-<option class="text-black">Full Day</option>
-<option class="text-black">Semester Pass</option>
+<label class="font-label-md text-label-md text-gray-300" for="calcDuration">Duration</label>
+<select id="calcDuration" class="w-full form-input form-input--dark border border-white/20 rounded-DEFAULT p-3 text-white focus:border-[#E06C53] focus:ring-1 focus:ring-[#E06C53] outline-none font-body-md text-body-md">
+<option value="2">2 Hours</option>
+<option value="4">4 Hours</option>
+<option value="8">Full Day (8 Hours)</option>
+<option value="semester">Semester Pass ($150 Flat)</option>
 </select>
 </div>
 </div>
 <div class="bg-[#E06C53] shadow-[0_0_20px_rgba(224,108,83,0.5)] rounded-lg p-md flex justify-between items-center mt-md border border-white/10">
 <span class="font-label-md text-label-md text-white/90">Estimated Cost:</span>
-<span class="font-headline-lg text-headline-lg font-bold text-white">$8.50</span>
+<span class="font-headline-lg text-headline-lg font-bold text-white" id="rateOutput">$8.00</span>
 </div>
 </div>
 </section>

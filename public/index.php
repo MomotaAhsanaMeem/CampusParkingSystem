@@ -323,9 +323,9 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label" style="color:#d1d5db;" for="calcZone">Select Zone</label>
                 <select id="calcZone" class="form-input form-input--dark">
-                    <option>Premium (Core Campus) — $4/hr</option>
-                    <option>Standard (Outer Lots) — $2/hr</option>
-                    <option>Economy (Stadium) — $1/hr</option>
+                    <option value="4">Premium (Core Campus) — $4/hr</option>
+                    <option value="2">Standard (Outer Lots) — $2/hr</option>
+                    <option value="1">Economy (Stadium) — $1/hr</option>
                 </select>
             </div>
             <div class="form-group" style="margin-bottom:0;">
@@ -333,7 +333,8 @@ require_once __DIR__ . '/../includes/header.php';
                 <select id="calcDuration" class="form-input form-input--dark">
                     <option value="2">2 Hours</option>
                     <option value="4">4 Hours</option>
-                    <option value="8">Full Day</option>
+                    <option value="8">Full Day (8 Hours)</option>
+                    <option value="semester">Semester Pass ($150 Flat)</option>
                 </select>
             </div>
         </div>

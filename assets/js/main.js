@@ -18,11 +18,19 @@ function initRateCalculator() {
 
     if (!zoneSelect || !durationSelect || !output) return;
 
-    var rates = [4, 2, 1]; // Premium, Standard, Economy — $/hr
+    var rates = [4, 2, 1]; // Premium ($4/hr), Standard ($2/hr), Economy ($1/hr)
 
     function update() {
-        var rate     = rates[zoneSelect.selectedIndex] || 2;
-        var duration = parseInt(durationSelect.value, 10) || 2;
+        var rateIndex = zoneSelect.selectedIndex;
+        var rate = rates[rateIndex] !== undefined ? rates[rateIndex] : 2;
+
+        var val = durationSelect.value;
+        if (val === 'semester' || val === 'pass') {
+            output.textContent = '$150.00';
+            return;
+        }
+
+        var duration = parseInt(val, 10) || 2;
         var total    = (rate * duration).toFixed(2);
         output.textContent = '$' + total;
     }

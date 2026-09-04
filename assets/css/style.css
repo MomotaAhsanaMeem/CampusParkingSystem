@@ -421,6 +421,10 @@ img { max-width: 100%; display: block; }
     border-color: rgba(255,255,255,.25);
     color: #fff;
 }
+.form-input--dark option {
+    background-color: #181C25;
+    color: #F8FAFC;
+}
 .form-input--dark:focus {
     border-color: var(--clr-primary);
     box-shadow: 0 0 0 2px rgba(224,108,83,.40);
