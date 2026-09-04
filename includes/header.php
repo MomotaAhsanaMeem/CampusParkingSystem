@@ -15,17 +15,35 @@ $current_file = basename($_SERVER['PHP_SELF']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($page_title) ?> — CampusPark</title>
     <meta name="description" content="Reserve campus parking in seconds. CampusPark lets students and staff book dedicated spots across all university zones.">
+    <link rel="icon" type="image/jpeg" href="/parking-system/assets/images/logo.jpg">
+    <link rel="apple-touch-icon" href="/parking-system/assets/images/logo.jpg">
 
-    <!-- Geist font -->
+    <!-- Google Fonts: Plus Jakarta Sans (Display/Hero) & Geist -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Material Symbols (for icons matching landing.html) -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
 
-    <!-- Primary stylesheet — all custom styling lives here -->
-    <link rel="stylesheet" href="/parking-system/assets/css/style.css">
+    <!-- Early theme init script to prevent FOUC -->
+    <script>
+      (function() {
+        var saved = localStorage.getItem('theme');
+        if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
+
+    <!-- Leaflet CSS & JS for Interactive Campus Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Primary stylesheet — with cache busting -->
+    <link rel="stylesheet" href="/parking-system/assets/css/style.css?v=<?= file_exists($_SERVER['DOCUMENT_ROOT'] . '/parking-system/assets/css/style.css') ? filemtime($_SERVER['DOCUMENT_ROOT'] . '/parking-system/assets/css/style.css') : time() ?>">
 
     <!-- Tailwind CDN with same config as landing.html —
          used as fallback for trivial layout utilities (flex, gap-*, grid-cols-*, etc.)
@@ -37,35 +55,35 @@ $current_file = basename($_SERVER['PHP_SELF']);
         theme: {
           extend: {
             colors: {
-              "primary":               "#9f3c27",
+              "primary":               "#0891B2",
               "on-primary":            "#ffffff",
-              "primary-container":     "#bf533c",
-              "secondary":             "#6b38d4",
+              "primary-container":     "#0e7490",
+              "secondary":             "#06B6D4",
               "on-secondary":          "#ffffff",
-              "secondary-container":   "#8455ef",
-              "tertiary":              "#585c65",
+              "secondary-container":   "#0891b2",
+              "tertiary":              "#475569",
               "surface":               "#f7f9fb",
               "surface-bright":        "#f7f9fb",
-              "surface-variant":       "#e0e3e5",
+              "surface-variant":       "#e2e8f0",
               "surface-container-lowest": "#ffffff",
-              "surface-container-low": "#f2f4f6",
-              "surface-container":     "#eceef0",
-              "surface-container-high":"#e6e8ea",
-              "surface-container-highest":"#e0e3e5",
-              "surface-dim":           "#d8dadc",
+              "surface-container-low": "#f1f5f9",
+              "surface-container":     "#e2e8f0",
+              "surface-container-high":"#cbd5e1",
+              "surface-container-highest":"#94a3b8",
+              "surface-dim":           "#cbd5e1",
               "background":            "#f7f9fb",
-              "on-background":         "#191c1e",
-              "on-surface":            "#191c1e",
-              "on-surface-variant":    "#57423d",
-              "outline":               "#8a726c",
-              "outline-variant":       "#ddc0ba",
-              "inverse-surface":       "#2d3133",
-              "inverse-on-surface":    "#eff1f3",
-              "inverse-primary":       "#ffb4a4",
-              "error":                 "#ba1a1a",
+              "on-background":         "#0f172a",
+              "on-surface":            "#0f172a",
+              "on-surface-variant":    "#475569",
+              "outline":               "#64748b",
+              "outline-variant":       "#cbd5e1",
+              "inverse-surface":       "#0f131b",
+              "inverse-on-surface":    "#f8fafc",
+              "inverse-primary":       "#22d3ee",
+              "error":                 "#b91c1c",
               "on-error":              "#ffffff",
-              "error-container":       "#ffdad6",
-              "on-error-container":    "#93000a"
+              "error-container":       "#fef2f2",
+              "on-error-container":    "#991b1b"
             },
             borderRadius: {
               "DEFAULT": "0.25rem",
@@ -116,14 +134,17 @@ $current_file = basename($_SERVER['PHP_SELF']);
      Frosted-glass sticky navbar  (matches landing.html header)
      ========================================================= -->
 <header class="navbar" role="banner">
-
+  <div class="navbar-inner">
     <a href="/parking-system/public/index.php" class="navbar-brand" aria-label="CampusPark home">
-        <div class="navbar-brand-icon" aria-hidden="true">P</div>
+        <img src="/parking-system/assets/images/logo.jpg" alt="CampusPark Logo" class="navbar-brand-logo" width="32" height="32">
         CampusPark
     </a>
 
     <!-- Desktop nav -->
     <nav class="navbar-nav" role="navigation" aria-label="Primary">
+        <button aria-label="Toggle Theme" class="theme-toggle-btn material-symbols-outlined nav-link" style="cursor:pointer; background:none; border:none; padding:6px 10px;">
+            dark_mode
+        </button>
         <?php if ($is_authed): ?>
             <a href="/parking-system/public/dashboard.php"
                class="nav-link <?= $current_file === 'dashboard.php' ? 'nav-link--active' : '' ?>">
@@ -155,11 +176,15 @@ $current_file = basename($_SERVER['PHP_SELF']);
     <button class="navbar-hamburger" id="navbarHamburger" aria-label="Open menu" aria-expanded="false">
         <span class="material-symbols-outlined">menu</span>
     </button>
-
+  </div>
 </header>
 
 <!-- Mobile Nav Drawer -->
 <div id="navbarMobileMenu" class="navbar-mobile-menu" aria-hidden="true">
+    <button aria-label="Toggle Theme" class="theme-toggle-btn mobile-nav-link flex items-center gap-2" style="cursor:pointer; background:none; border:none; width:100%; text-align:left;">
+        <span class="material-symbols-outlined">dark_mode</span>
+        <span class="theme-toggle-label">Dark Mode</span>
+    </button>
     <?php if ($is_authed): ?>
         <a href="/parking-system/public/dashboard.php"
            class="mobile-nav-link <?= $current_file === 'dashboard.php' ? 'mobile-nav-link--active' : '' ?>">

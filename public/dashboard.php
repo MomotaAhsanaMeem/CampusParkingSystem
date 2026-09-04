@@ -76,7 +76,7 @@ require_once __DIR__ . '/../includes/header.php';
             </h1>
             <p class="page-subtitle">Here's an overview of your campus parking activity.</p>
         </div>
-        <a href="/parking-system/public/book-slot.php" class="btn btn-primary flex items-center gap-sm">
+        <a href="/parking-system/public/book-slot.php" class="btn btn-primary w-full sm:w-auto flex items-center justify-center gap-sm">
             <span class="material-symbols-outlined" style="font-size:18px;">add_circle</span>
             Reserve a Slot
         </a>
