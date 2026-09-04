@@ -648,6 +648,11 @@ select.form-input {
     #campusMap { height: 350px; }
 }
 
+/* Midnight Dark Mode filter for OpenStreetMap tiles (watermark-free & keyless) */
+html.dark .leaflet-tile-pane {
+    filter: brightness(0.65) invert(1) contrast(1.3) hue-rotate(200deg) saturate(0.35);
+}
+
 /* Zone Filter Pills */
 .map-filter-bar {
     display: flex;

@@ -317,26 +317,10 @@ function initCampusMap() {
         attributionControl: false
     });
 
-    // Theme-aware tile layers: CartoDB Dark Matter & Voyager
-    var darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd',
+    // Clean, free OpenStreetMap tiles (zero API key, zero watermark)
+    var osmTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19
-    });
-    var lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd',
-        maxZoom: 19
-    });
-
-    var isDark = document.documentElement.classList.contains('dark');
-    var currentTileLayer = isDark ? darkTiles : lightTiles;
-    currentTileLayer.addTo(map);
-
-    // Switch tiles when navbar theme toggle is clicked
-    window.addEventListener('themeChange', function(e) {
-        map.removeLayer(currentTileLayer);
-        currentTileLayer = e.detail && e.detail.isDark ? darkTiles : lightTiles;
-        currentTileLayer.addTo(map);
-    });
+    }).addTo(map);
 
     // Campus Parking Zones Data
     var zones = [
