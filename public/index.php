@@ -102,7 +102,7 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
 
         <!-- Hero image -->
-        <div class="flex-1 w-full hero-img-wrap" style="height:400px;">
+        <div class="flex-1 w-full hero-img-wrap">
             <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVcpT5Q5BSSDNcqeQt1bvesnbnz6CiboPjSSL1h9QtCoEQbyBD9LdeSsyjPUAscmucS9U9I9gw9z5P4FiFYqsY8PWW_ArZduN7WldHx7K8zn5VoozM915gbw0vn-HOh__MHfW-pcHyN33r_nMdHBS5PVzoeg5FfLFJf2CD7tqn12-arqh9sPZf1aYyDw7OOjCs1gtV-gXBZwJSi5GTR9mib9acgA6n-9psv4_RjapoNPyK9X9ijM8"
                  alt="3D isometric illustration of a smart campus parking lot">
             <div class="hero-img-overlay"></div>

@@ -655,26 +655,45 @@ select.form-input {
    11. Hero section
    -------------------------------------------------------------------------- */
 .hero-display {
-    font-size: 48px;
+    font-size: 36px;
+    line-height: 44px;
     font-weight: 700;
-    line-height: 56px;
-    letter-spacing: -.02em;
+    letter-spacing: -.025em;
     color: var(--clr-text);
+}
+@media (min-width: 768px) {
+    .hero-display {
+        font-size: 46px;
+        line-height: 54px;
+    }
+}
+@media (min-width: 1024px) {
+    .hero-display {
+        font-size: 56px;
+        line-height: 64px;
+        letter-spacing: -.03em;
+    }
 }
 .hero-display span { color: var(--clr-primary); font-style: italic; }
 
-.hero-body { font-size: 18px; line-height: 28px; color: var(--clr-text-muted); }
+.hero-body { font-size: 18px; line-height: 29px; color: var(--clr-text-muted); max-width: 560px; }
 
-.hero-stat-value { font-size: 28px; font-weight: 700; color: var(--clr-text); line-height: 1; }
-.hero-stat-label { font-size: 13px; font-weight: 500; color: var(--clr-text-muted); margin-top: 2px; }
+.hero-stat-value { font-size: 30px; font-weight: 700; color: var(--clr-text); line-height: 1; letter-spacing: -.02em; }
+.hero-stat-label { font-size: 13px; font-weight: 600; color: var(--clr-text-muted); margin-top: 4px; }
 
 .hero-img-wrap {
     position: relative;
-    border-radius: var(--r-md);
-    border: 1px solid var(--clr-outline-var);
+    height: 340px;
+    border-radius: 1.25rem;
+    border: 1px solid var(--clr-border);
     overflow: hidden;
-    box-shadow: var(--shadow-card);
-    background: #fff;
+    box-shadow: var(--shadow-xl);
+    background: var(--clr-surface);
+}
+@media (min-width: 768px) {
+    .hero-img-wrap {
+        height: 440px;
+    }
 }
 .hero-img-wrap img {
     width: 100%;
@@ -873,7 +892,7 @@ select.form-input {
 /* --------------------------------------------------------------------------
    18. Footer
    -------------------------------------------------------------------------- */
-.site-footer { background: var(--clr-bg); border-top: 1px solid var(--clr-outline-var); padding: 2rem 0; margin-top: auto; }
+.site-footer { background: var(--clr-bg); border-top: 1px solid var(--clr-outline-var); padding: 2.5rem 0; margin-top: auto; }
 .site-footer-inner {
     max-width: 80rem; margin: 0 auto;
     padding: 0 48px;
@@ -883,7 +902,7 @@ select.form-input {
 .footer-copy      { font-size: 13px; font-weight: 700; color: var(--clr-text); }
 .footer-links     { display: flex; gap: var(--sp-lg); list-style: none; }
 .footer-links a   { font-size: 13px; color: var(--clr-text-muted); transition: color 150ms; }
-.footer-links a:hover { color: #9f3c27; }
+.footer-links a:hover { color: var(--clr-primary); }
 
 @media (max-width: 768px) {
     .site-footer-inner { padding: 0 16px; }
@@ -903,15 +922,16 @@ select.form-input {
    -------------------------------------------------------------------------- */
 .section-eyebrow {
     font-size: 12px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .08em;
+    text-transform: uppercase; letter-spacing: .1em;
     color: var(--clr-secondary);
 }
-.section-title     { font-size: 32px; font-weight: 700; letter-spacing: -.01em; color: var(--clr-text); }
+.section-title     { font-size: 28px; line-height: 36px; font-weight: 700; letter-spacing: -.02em; color: var(--clr-text); }
+@media (min-width: 768px) {
+    .section-title { font-size: 36px; line-height: 44px; }
+}
 .testimonials-bg   { background: #F0F7F7; }
 
-/* Mesh / animated BG for hero — fixed behind just the top viewport.
-   Must NOT be position:absolute on a non-positioned parent or it will
-   collapse the parent height and hide all sections below the hero. */
+/* Mesh / animated BG for hero — fixed behind just the top viewport. */
 .hero-bg-mesh {
     position: fixed;
     top: 0; left: 0;
@@ -928,14 +948,14 @@ select.form-input {
 /* Rate calc result bar */
 .rate-result {
     background: var(--clr-primary);
-    box-shadow: 0 0 20px rgba(224,108,83,.5);
-    border-radius: var(--r);
-    padding: var(--sp-md);
+    box-shadow: 0 0 20px rgba(159,60,39,.4);
+    border-radius: var(--r-md);
+    padding: 1.25rem 1.5rem;
     display: flex; justify-content: space-between; align-items: center;
-    border: 1px solid rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
 }
-.rate-result-label { font-size: 14px; color: rgba(255,255,255,.9); }
-.rate-result-value { font-size: 28px; font-weight: 700; color: #fff; }
+.rate-result-label { font-size: 14px; font-weight: 600; color: rgba(255,255,255,.9); }
+.rate-result-value { font-size: 32px; font-weight: 700; color: #fff; line-height: 1; letter-spacing: -.02em; }
 
 /* --------------------------------------------------------------------------
    21. Utilities
