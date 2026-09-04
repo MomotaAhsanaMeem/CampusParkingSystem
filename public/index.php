@@ -159,50 +159,76 @@ require_once __DIR__ . '/../includes/header.php';
 
     </section>
 
-    <!-- ── 3. Interactive Campus Map Preview ─────────────────── -->
+    <!-- ── 3. Interactive Campus Map ─────────────────── -->
     <section class="section-dark mt-xl flex flex-col gap-lg" aria-labelledby="mapTitle">
 
-        <div>
-            <p class="section-eyebrow" style="color:var(--clr-secondary);">Live Availability</p>
-            <h2 id="mapTitle" style="color:#fff; font-size:32px; font-weight:700; margin-top:4px;">
-                Interactive Campus Map
-            </h2>
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+            <div>
+                <p class="section-eyebrow" style="color:var(--clr-secondary);">Live Availability</p>
+                <h2 id="mapTitle" style="color:#fff; font-size:32px; font-weight:700; margin-top:4px;">
+                    Interactive Campus Map
+                </h2>
+                <p style="color:#d1d5db; font-size:15px; margin-top:4px;">
+                    Explore designated campus zones, check real-time capacity, and reserve parking in seconds.
+                </p>
+            </div>
+
+            <!-- Zone Filter Navigation Pills -->
+            <div class="map-filter-bar" role="tablist" aria-label="Parking Zone Filters">
+                <button class="map-zone-btn map-zone-btn--active" data-zone="all" role="tab" aria-selected="true">
+                    <span class="map-zone-dot" style="background:#fff;"></span> All Zones
+                </button>
+                <button class="map-zone-btn" data-zone="A" role="tab" aria-selected="false">
+                    <span class="map-zone-dot" style="background:#E06C53;"></span> Zone A (Core)
+                </button>
+                <button class="map-zone-btn" data-zone="B" role="tab" aria-selected="false">
+                    <span class="map-zone-dot" style="background:#8B5CF6;"></span> Zone B (Outer)
+                </button>
+                <button class="map-zone-btn" data-zone="C" role="tab" aria-selected="false">
+                    <span class="map-zone-dot" style="background:#10B981;"></span> Zone C (Stadium)
+                </button>
+                <button class="map-zone-btn" data-zone="D" role="tab" aria-selected="false">
+                    <span class="map-zone-dot" style="background:#F59E0B;"></span> Zone D (Medical)
+                </button>
+            </div>
         </div>
 
-        <div class="map-preview" role="img" aria-label="Simulated campus parking zone map">
+        <!-- Interactive Map Container -->
+        <div class="map-wrapper">
+            <!-- Leaflet Map Mount Point -->
+            <div id="campusMap" role="region" aria-label="Interactive campus parking map"></div>
 
-            <!-- Zone A pin -->
-            <div class="map-pin map-pin--emerald" style="top:25%; left:22%;">
-                <span class="map-pin-dot glow-emerald"></span>
-                Zone A (Core)
+            <!-- Live Telemetry HUD Card -->
+            <div class="map-hud-card" aria-live="polite">
+                <div class="flex items-center justify-between gap-3 mb-1">
+                    <span class="map-hud-live-indicator"><span class="map-hud-pulse"></span>LIVE OCCUPANCY</span>
+                    <span style="font-size:11px; opacity:.75; font-weight:600;">Campus ParkNet</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span style="font-size:24px; font-weight:700; color:#fff;" id="mapHudAvailable">179</span>
+                    <span style="font-size:12px; color:rgba(255,255,255,.8);">/ 425 Spots Free</span>
+                </div>
+                <div class="w-full bg-white/10 rounded-full h-1.5 mt-2 overflow-hidden">
+                    <div class="bg-gradient-to-r from-emerald-400 to-teal-300 h-full rounded-full" style="width: 42%;"></div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-white/80 mt-2 pt-2 border-t border-white/10">
+                    <span>Avg. Rate: <strong style="color:#fff;">$2.50/hr</strong></span>
+                    <span>Shuttle: <strong style="color:#10B981;">Active (5m)</strong></span>
+                </div>
             </div>
 
-            <!-- Zone B pin -->
-            <div class="map-pin map-pin--terra" style="bottom:25%; left:50%;">
-                <span class="map-pin-dot glow-terra"></span>
-                Zone B (Outer)
-            </div>
-
-            <!-- Zone C pin -->
-            <div class="map-pin map-pin--violet" style="top:40%; right:15%;"
-                 style="border-color:var(--clr-secondary);">
-                <span class="map-pin-dot" style="background:var(--clr-secondary); box-shadow:0 0 10px var(--clr-secondary);"></span>
-                Zone C (Campus)
-            </div>
-
-            <!-- Map controls -->
-            <div class="map-controls" aria-label="Map zoom controls">
-                <button class="map-ctrl-btn" aria-label="Zoom in">
+            <!-- Custom Map Control Overlay -->
+            <div class="map-controls" aria-label="Map view controls">
+                <button id="mapZoomIn" class="map-ctrl-btn" aria-label="Zoom in" title="Zoom in">
                     <span class="material-symbols-outlined">add</span>
                 </button>
-                <button class="map-ctrl-btn" aria-label="Zoom out">
+                <button id="mapZoomOut" class="map-ctrl-btn" aria-label="Zoom out" title="Zoom out">
                     <span class="material-symbols-outlined">remove</span>
                 </button>
-                <button class="map-ctrl-btn" aria-label="My location" style="margin-top:8px;">
-                    <span class="material-symbols-outlined">my_location</span>
+                <button id="mapRecenter" class="map-ctrl-btn" style="margin-top:6px;" aria-label="Recenter campus map" title="Recenter Campus">
+                    <span class="material-symbols-outlined">near_me</span>
                 </button>
             </div>
-
         </div>
 
     </section>

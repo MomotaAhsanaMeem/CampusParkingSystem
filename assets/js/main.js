@@ -287,10 +287,279 @@ function initThemeToggle() {
                 document.documentElement.classList.remove('dark');
                 localStorage.setItem('theme', 'light');
                 updateUI(false);
+                window.dispatchEvent(new CustomEvent('themeChange', { detail: { isDark: false } }));
             } else {
                 document.documentElement.classList.add('dark');
                 localStorage.setItem('theme', 'dark');
                 updateUI(true);
+                window.dispatchEvent(new CustomEvent('themeChange', { detail: { isDark: true } }));
+            }
+        });
+    });
+}
+
+/* ==========================================================================
+   Interactive Campus Parking Map (Leaflet.js)
+   ========================================================================== */
+
+function initCampusMap() {
+    var mapEl = document.getElementById('campusMap');
+    if (!mapEl || typeof L === 'undefined') return;
+
+    // Center coordinates for campus (UC Berkeley / University Glade Area)
+    var campusCenter = [37.8719, -122.2585];
+    var map = L.map('campusMap', {
+        center: campusCenter,
+        zoom: 16,
+        minZoom: 14,
+        maxZoom: 18,
+        zoomControl: false,
+        attributionControl: false
+    });
+
+    // Theme-aware tile layers: CartoDB Dark Matter & Voyager
+    var darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 19
+    });
+    var lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 19
+    });
+
+    var isDark = document.documentElement.classList.contains('dark');
+    var currentTileLayer = isDark ? darkTiles : lightTiles;
+    currentTileLayer.addTo(map);
+
+    // Switch tiles when navbar theme toggle is clicked
+    window.addEventListener('themeChange', function(e) {
+        map.removeLayer(currentTileLayer);
+        currentTileLayer = e.detail && e.detail.isDark ? darkTiles : lightTiles;
+        currentTileLayer.addTo(map);
+    });
+
+    // Campus Parking Zones Data
+    var zones = [
+        {
+            id: 'A',
+            name: 'Zone A — Core Campus',
+            landmark: 'Main Library & Student Union',
+            rate: '$4.00/hr',
+            totalSpots: 45,
+            availableSpots: 8,
+            statusText: 'Filling Fast',
+            badgeBg: '#FFF1F2',
+            badgeColor: '#9F3C27',
+            color: '#E06C53',
+            walkTime: '2 min walk to Lecture Halls',
+            center: [37.8724, -122.2598],
+            polygon: [
+                [37.8732, -122.2610],
+                [37.8735, -122.2588],
+                [37.8718, -122.2585],
+                [37.8715, -122.2607]
+            ]
+        },
+        {
+            id: 'B',
+            name: 'Zone B — Outer Lots',
+            landmark: 'Science & Engineering Complex',
+            rate: '$2.00/hr',
+            totalSpots: 120,
+            availableSpots: 42,
+            statusText: 'Good Availability',
+            badgeBg: '#F5F3FF',
+            badgeColor: '#6D28D9',
+            color: '#8B5CF6',
+            walkTime: '5 min walk to STEM Labs',
+            center: [37.8748, -122.2570],
+            polygon: [
+                [37.8756, -122.2582],
+                [37.8758, -122.2558],
+                [37.8739, -122.2555],
+                [37.8738, -122.2579]
+            ]
+        },
+        {
+            id: 'C',
+            name: 'Zone C — Stadium & Athletics',
+            landmark: 'East Campus Sports Pavilion',
+            rate: '$1.00/hr',
+            totalSpots: 200,
+            availableSpots: 115,
+            statusText: 'High Availability',
+            badgeBg: '#F0FDF4',
+            badgeColor: '#047857',
+            color: '#10B981',
+            walkTime: '8 min walk (Campus Shuttle every 5m)',
+            center: [37.8702, -122.2530],
+            polygon: [
+                [37.8712, -122.2545],
+                [37.8714, -122.2515],
+                [37.8690, -122.2512],
+                [37.8688, -122.2542]
+            ]
+        },
+        {
+            id: 'D',
+            name: 'Zone D — Health & Medical',
+            landmark: 'West Campus Health Center',
+            rate: '$3.00/hr',
+            totalSpots: 60,
+            availableSpots: 14,
+            statusText: 'Moderate',
+            badgeBg: '#FFFBEB',
+            badgeColor: '#B45309',
+            color: '#F59E0B',
+            walkTime: '4 min walk to Medical Wing & Clinic',
+            center: [37.8698, -122.2642],
+            polygon: [
+                [37.8706, -122.2655],
+                [37.8708, -122.2628],
+                [37.8688, -122.2625],
+                [37.8686, -122.2652]
+            ]
+        }
+    ];
+
+    var zoneMarkers = {};
+
+    zones.forEach(function(zone) {
+        // Boundary polygon overlay
+        var polygonLayer = L.polygon(zone.polygon, {
+            color: zone.color,
+            weight: 2,
+            opacity: 0.85,
+            fillColor: zone.color,
+            fillOpacity: 0.20,
+            dashArray: '4, 6'
+        }).addTo(map);
+
+        // Custom pulsing radar marker HTML
+        var markerHtml = `
+            <div class="map-radar-marker" aria-label="${zone.name}">
+                <div class="radar-beacon" style="background-color: ${zone.color};"></div>
+                <div class="radar-core" style="background-color: ${zone.color};"></div>
+                <div class="radar-pill">
+                    <span style="width:7px; height:7px; border-radius:50%; background:${zone.color};"></span>
+                    <span>Zone ${zone.id} &bull; ${zone.availableSpots} Free</span>
+                </div>
+            </div>
+        `;
+
+        var customIcon = L.divIcon({
+            html: markerHtml,
+            className: '',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+            popupAnchor: [0, -28]
+        });
+
+        var usedSpots = zone.totalSpots - zone.availableSpots;
+        var occupancyPct = Math.round((usedSpots / zone.totalSpots) * 100);
+
+        var popupContent = `
+            <div class="campus-map-popup">
+                <div class="campus-map-popup-header">
+                    <div>
+                        <div class="campus-map-popup-title">${zone.name}</div>
+                        <div class="campus-map-popup-subtitle">${zone.landmark}</div>
+                    </div>
+                    <span class="campus-map-popup-badge" style="background:${zone.badgeBg}; color:${zone.badgeColor};">
+                        ${zone.statusText}
+                    </span>
+                </div>
+                <div class="campus-map-popup-stat-grid">
+                    <div>
+                        <div class="campus-map-popup-stat-label">Hourly Rate</div>
+                        <div class="campus-map-popup-stat-val">${zone.rate}</div>
+                    </div>
+                    <div>
+                        <div class="campus-map-popup-stat-label">Available Slots</div>
+                        <div class="campus-map-popup-stat-val" style="color:${zone.color};">${zone.availableSpots} / ${zone.totalSpots}</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px; color:#94A3B8;">
+                        <span>Capacity Filled</span>
+                        <span><strong>${occupancyPct}%</strong></span>
+                    </div>
+                    <div class="campus-map-popup-progress-track">
+                        <div class="campus-map-popup-progress-bar" style="width:${occupancyPct}%; background:${zone.color};"></div>
+                    </div>
+                </div>
+                <div class="campus-map-popup-walk">
+                    <span class="material-symbols-outlined" style="font-size:15px; color:${zone.color};">directions_walk</span>
+                    <span>${zone.walkTime}</span>
+                </div>
+                <a href="/parking-system/public/book-slot.php" class="campus-map-popup-btn">
+                    <span>Reserve in Zone ${zone.id}</span>
+                    <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span>
+                </a>
+            </div>
+        `;
+
+        var marker = L.marker(zone.center, { icon: customIcon }).addTo(map);
+        marker.bindPopup(popupContent, { maxWidth: 320 });
+        zoneMarkers[zone.id] = marker;
+
+        polygonLayer.on('click', function() {
+            marker.openPopup();
+        });
+    });
+
+    // Custom Map Controls (+, -, Recenter)
+    var zoomInBtn = document.getElementById('mapZoomIn');
+    var zoomOutBtn = document.getElementById('mapZoomOut');
+    var recenterBtn = document.getElementById('mapRecenter');
+
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            map.zoomIn();
+        });
+    }
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            map.zoomOut();
+        });
+    }
+    if (recenterBtn) {
+        recenterBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            map.flyTo(campusCenter, 16, { duration: 1.2 });
+            setActiveZoneButton('all');
+        });
+    }
+
+    // Filter Buttons logic
+    var filterBtns = document.querySelectorAll('.map-zone-btn');
+    function setActiveZoneButton(zoneId) {
+        filterBtns.forEach(function(btn) {
+            var isCurrent = btn.dataset.zone === zoneId;
+            btn.classList.toggle('map-zone-btn--active', isCurrent);
+            btn.setAttribute('aria-selected', isCurrent ? 'true' : 'false');
+        });
+    }
+
+    filterBtns.forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var zoneId = btn.dataset.zone;
+            setActiveZoneButton(zoneId);
+
+            if (zoneId === 'all') {
+                map.flyTo(campusCenter, 16, { duration: 1.2 });
+                map.closePopup();
+            } else if (zoneMarkers[zoneId]) {
+                var targetZone = zones.find(function(z) { return z.id === zoneId; });
+                if (targetZone) {
+                    map.flyTo(targetZone.center, 17, { duration: 1.2 });
+                    setTimeout(function() {
+                        zoneMarkers[zoneId].openPopup();
+                    }, 800);
+                }
             }
         });
     });
@@ -325,7 +594,8 @@ document.addEventListener('DOMContentLoaded', function() {
         initFormValidation();
     }
 
-    if (page === 'landing') {
+    if (page === 'landing' || document.getElementById('campusMap')) {
         initRateCalculator();
+        initCampusMap();
     }
 });
