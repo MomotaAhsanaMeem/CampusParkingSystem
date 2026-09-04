@@ -128,7 +128,7 @@ $current_file = basename($_SERVER['PHP_SELF']);
      Frosted-glass sticky navbar  (matches landing.html header)
      ========================================================= -->
 <header class="navbar" role="banner">
-
+  <div class="navbar-inner">
     <a href="/parking-system/public/index.php" class="navbar-brand" aria-label="CampusPark home">
         <div class="navbar-brand-icon" aria-hidden="true">P</div>
         CampusPark
@@ -170,7 +170,7 @@ $current_file = basename($_SERVER['PHP_SELF']);
     <button class="navbar-hamburger" id="navbarHamburger" aria-label="Open menu" aria-expanded="false">
         <span class="material-symbols-outlined">menu</span>
     </button>
-
+  </div>
 </header>
 
 <!-- Mobile Nav Drawer -->

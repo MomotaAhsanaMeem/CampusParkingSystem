@@ -137,13 +137,22 @@ img { max-width: 100%; display: block; }
     width: 100%;
     z-index: 50;
     height: 64px;
+}
+
+.navbar-inner {
+    width: 100%;
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 48px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 48px;
+    height: 100%;
 }
 
-@media (max-width: 768px) { .navbar { padding: 0 16px; } }
+@media (max-width: 768px) {
+    .navbar-inner { padding: 0 16px; }
+}
 
 .navbar-brand {
     display: flex;
@@ -983,7 +992,6 @@ select.form-input {
    22. Responsive Breakpoints
    -------------------------------------------------------------------------- */
 @media (max-width: 1024px) {
-    .navbar { padding: 0 24px; }
     .hero-img-wrap { height: 380px; }
 }
 
@@ -1032,7 +1040,6 @@ select.form-input {
     .slot-grid       { grid-template-columns: 1fr 1fr; gap: 8px; }
     .slot-card       { padding: 10px; }
     .slot-card-code  { font-size: 18px; }
-    .navbar          { padding: 0 12px; }
     .navbar-brand    { font-size: 15px; gap: 6px; }
 }
 
