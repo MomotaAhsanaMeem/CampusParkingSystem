@@ -10,8 +10,8 @@
             <span class="footer-copy">CampusPark &copy; <?= date('Y') ?></span>
         </div>
         <ul class="footer-links" role="list">
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Terms of Service</a></li>
+            <li><a href="/parking-system/public/privacy-policy.php">Privacy Policy</a></li>
+            <li><a href="/parking-system/public/terms-of-service.php">Terms of Service</a></li>
             <li><a href="#">Support</a></li>
         </ul>
     </div>
