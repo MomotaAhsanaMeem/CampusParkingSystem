@@ -49,6 +49,26 @@ try {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )");
+
+            // Check if bookings has start_time / end_time (time-block booking update)
+            $colCheck3 = $pdo->query("SHOW COLUMNS FROM bookings LIKE 'start_time'");
+            if ($colCheck3 && !$colCheck3->fetch()) {
+                $pdo->exec("ALTER TABLE bookings ADD COLUMN start_time TIME DEFAULT NULL AFTER points_cost");
+                $pdo->exec("ALTER TABLE bookings ADD COLUMN end_time   TIME DEFAULT NULL AFTER start_time");
+            }
+
+            // Create complaints table (slot-occupied reporting system)
+            $pdo->exec("CREATE TABLE IF NOT EXISTS complaints (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                blocked_booking_id   INT NOT NULL,
+                occupying_booking_id INT NOT NULL,
+                complainant_id       INT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY unique_blocked (blocked_booking_id),
+                FOREIGN KEY (blocked_booking_id)   REFERENCES bookings(id) ON DELETE CASCADE,
+                FOREIGN KEY (occupying_booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+                FOREIGN KEY (complainant_id)        REFERENCES users(id)   ON DELETE CASCADE
+            )");
         } catch (Throwable $ignore) {
             // Silently ignore if schema setup is already handled or tables not created yet
         }

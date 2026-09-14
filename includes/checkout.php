@@ -1,9 +1,9 @@
 <?php
 // checkout.php — POST-only handler for check-out action.
-// Sets check_out_time = NOW() and status = 'completed', then
-// compares against check_in_time + 4h15m; late departures incur a
-// point fine (5 pts per started 15-min block), increment
-// late_departure_count, and optionally freeze booking access.
+// Sets check_out_time = NOW() and status = 'completed', then compares
+// check_out_time against the booking's own end_time + 15 min grace period.
+// Late departures incur a point fine (5 pts per started 15-min block),
+// increment late_departure_count, and optionally freeze booking access.
 // Never outputs HTML; always redirects back to dashboard.
 
 require_once __DIR__ . '/db.php';
@@ -27,8 +27,10 @@ if ($booking_id <= 0) {
 }
 
 // Fetch the booking — must belong to this user and be status='checked_in'.
+// Also pull booking_date + end_time so we can compute the deadline accurately.
 $stmt = $pdo->prepare(
-    "SELECT id, check_in_time FROM bookings WHERE id = ? AND user_id = ? AND status = 'checked_in'"
+    "SELECT id, check_in_time, booking_date, end_time
+       FROM bookings WHERE id = ? AND user_id = ? AND status = 'checked_in'"
 );
 $stmt->execute([$booking_id, $user_id]);
 $booking = $stmt->fetch();
@@ -39,22 +41,28 @@ if (!$booking) {
     exit;
 }
 
-// Record check-out time then determine on-time vs late.
+// Record check-out time.
 $upd = $pdo->prepare(
     "UPDATE bookings SET check_out_time = NOW(), status = 'completed' WHERE id = ?"
 );
 $upd->execute([$booking_id]);
 
 // Reload the just-saved check_out_time from DB for an authoritative comparison.
-$row = $pdo->prepare('SELECT check_in_time, check_out_time FROM bookings WHERE id = ?');
+$row = $pdo->prepare('SELECT check_out_time FROM bookings WHERE id = ?');
 $row->execute([$booking_id]);
-$times = $row->fetch();
+$checkout_time = $row->fetchColumn();
 
-// Standard slot = 4 hours; grace period = 15 minutes → deadline = check_in + 4h15m.
-$deadline      = strtotime($times['check_in_time']) + (4 * 3600) + (15 * 60);
-$checked_out   = strtotime($times['check_out_time']);
-$seconds_over  = $checked_out - $deadline;
-$is_late       = $seconds_over > 0;
+// Deadline = booking's own end_time + 15-minute grace period.
+// Falls back to check_in_time + 4h15m for legacy bookings without an end_time.
+if (!empty($booking['end_time'])) {
+    $deadline = strtotime($booking['booking_date'] . ' ' . $booking['end_time']) + (15 * 60);
+} else {
+    $deadline = strtotime($booking['check_in_time']) + (4 * 3600) + (15 * 60);
+}
+
+$checked_out  = strtotime($checkout_time);
+$seconds_over = $checked_out - $deadline;
+$is_late      = $seconds_over > 0;
 
 if (!$is_late) {
     // On-time checkout — no points adjustment.
@@ -85,8 +93,8 @@ if (!$is_late) {
     $_SESSION['late_count'] = $new_count;
 
     // Human-readable overrun duration for the flash message.
-    $mins_over   = (int) ceil($seconds_over / 60);
-    $fine_label  = "-{$fine_pts} pts fine ({$mins_over} min late)";
+    $mins_over  = (int) ceil($seconds_over / 60);
+    $fine_label = "-{$fine_pts} pts fine ({$mins_over} min late)";
 
     if ($new_count % 3 === 0) {
         // Lock bookings until tomorrow.

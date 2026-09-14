@@ -8,10 +8,11 @@ $is_locked   = is_booking_locked();
 $user_points = refresh_user_points($pdo, $user['id']);
 $package_tier = $_SESSION['package_tier'] ?? 'Starter';
 
-// Fetch latest 10 bookings including duration, points cost, and check-in/out times
+// Fetch latest 10 bookings including duration, points cost, check-in/out times, and time range
 $stmt = $pdo->prepare(
     'SELECT b.id, b.booking_date, b.duration_hours, b.points_cost, b.status,
-            b.check_in_time, b.check_out_time, s.slot_code, s.zone
+            b.check_in_time, b.check_out_time, b.start_time, b.end_time,
+            s.slot_code, s.zone
        FROM bookings b
        JOIN parking_slots s ON s.id = b.slot_id
       WHERE b.user_id = ?
@@ -31,9 +32,10 @@ $stmt3 = $pdo->prepare("SELECT COUNT(*) FROM bookings WHERE user_id = ? AND stat
 $stmt3->execute([$user['id']]);
 $completed_count = (int) $stmt3->fetchColumn();
 
-$flash       = $_SESSION['flash']       ?? '';
-$flash_error = $_SESSION['flash_error'] ?? '';
-unset($_SESSION['flash'], $_SESSION['flash_error']);
+$flash           = $_SESSION['flash']           ?? '';
+$flash_error     = $_SESSION['flash_error']     ?? '';
+$blocked_checkin = $_SESSION['blocked_checkin'] ?? null;
+unset($_SESSION['flash'], $_SESSION['flash_error'], $_SESSION['blocked_checkin']);
 
 $today = date('Y-m-d');
 
@@ -49,10 +51,14 @@ $past_cancelled = $pastStmt->rowCount();
 
 // Sweep 2: cancel today's 'booked' slots whose 15-minute check-in window has expired,
 // and apply the late-departure penalty for each no-show.
+// Uses start_time for time-block bookings; falls back to created_at for legacy rows.
 $expStmt = $pdo->prepare(
     "SELECT COUNT(*) FROM bookings
       WHERE user_id = ? AND status = 'booked' AND booking_date = CURDATE()
-        AND created_at <= NOW() - INTERVAL 15 MINUTE"
+        AND (
+              (start_time IS NOT NULL AND CONCAT(booking_date, ' ', start_time) <= NOW() - INTERVAL 15 MINUTE)
+           OR (start_time IS NULL     AND created_at <= NOW() - INTERVAL 15 MINUTE)
+            )"
 );
 $expStmt->execute([$user['id']]);
 $expired_count = (int) $expStmt->fetchColumn();
@@ -62,7 +68,10 @@ if ($expired_count > 0) {
     $cancelStmt = $pdo->prepare(
         "UPDATE bookings SET status = 'cancelled'
           WHERE user_id = ? AND status = 'booked' AND booking_date = CURDATE()
-            AND created_at <= NOW() - INTERVAL 15 MINUTE"
+            AND (
+                  (start_time IS NOT NULL AND CONCAT(booking_date, ' ', start_time) <= NOW() - INTERVAL 15 MINUTE)
+               OR (start_time IS NULL     AND created_at <= NOW() - INTERVAL 15 MINUTE)
+                )"
     );
     $cancelStmt->execute([$user['id']]);
 
@@ -99,7 +108,8 @@ if ($expired_count > 0) {
 if ($past_cancelled > 0 || $expired_count > 0) {
     $stmt = $pdo->prepare(
         'SELECT b.id, b.booking_date, b.duration_hours, b.points_cost, b.status,
-                b.check_in_time, b.check_out_time, s.slot_code, s.zone
+                b.check_in_time, b.check_out_time, b.start_time, b.end_time,
+                s.slot_code, s.zone
            FROM bookings b
            JOIN parking_slots s ON s.id = b.slot_id
           WHERE b.user_id = ?
@@ -155,11 +165,24 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
     <?php endif; ?>
 
-    <!-- Flash error -->
+    <!-- Flash error (with optional Report button for blocked check-ins) -->
     <?php if ($flash_error !== ''): ?>
     <div class="alert alert-error" role="alert">
         <span class="alert-icon material-symbols-outlined" aria-hidden="true">error</span>
-        <?= htmlspecialchars($flash_error) ?>
+        <div style="flex:1;">
+            <?= htmlspecialchars($flash_error) ?>
+            <?php if ($blocked_checkin): ?>
+            <form method="POST" action="<?= BASE_URL ?>/includes/checkin.php" style="margin-top:10px;">
+                <input type="hidden" name="action"               value="report">
+                <input type="hidden" name="blocked_booking_id"   value="<?= (int)$blocked_checkin['blocked_id'] ?>">
+                <input type="hidden" name="occupying_booking_id" value="<?= (int)$blocked_checkin['occupying_id'] ?>">
+                <button type="submit" class="btn btn-secondary" style="padding:6px 16px; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                    <span class="material-symbols-outlined" style="font-size:15px;">report</span>
+                    Report this (+15 pts)
+                </button>
+            </form>
+            <?php endif; ?>
+        </div>
     </div>
     <?php endif; ?>
 
@@ -258,6 +281,13 @@ require_once __DIR__ . '/../includes/header.php';
                             // Determine which action button to show, if any.
                             $show_checkin  = ($b['status'] === 'booked'      && $b['booking_date'] === $today);
                             $show_checkout = ($b['status'] === 'checked_in');
+                            // Build a time-range label if start_time/end_time are set
+                            $time_range = '';
+                            if (!empty($b['start_time']) && !empty($b['end_time'])) {
+                                $time_range = date('g A', strtotime($b['start_time']))
+                                            . ' – '
+                                            . date('g A', strtotime($b['end_time']));
+                            }
                         ?>
                         <tr>
                             <td class="font-semi text-muted">
@@ -267,6 +297,9 @@ require_once __DIR__ . '/../includes/header.php';
                             <td><?= htmlspecialchars($b['zone']) ?></td>
                             <td><?= htmlspecialchars(date('M j, Y', strtotime($b['booking_date']))) ?></td>
                             <td>
+                                <?php if ($time_range): ?>
+                                <span style="font-size:11px; color:var(--clr-secondary); font-weight:600; display:block;"><?= htmlspecialchars($time_range) ?></span>
+                                <?php endif; ?>
                                 <strong><?= $duration ?> hr<?= $duration > 1 ? 's' : '' ?></strong>
                                 <span class="text-muted" style="font-size:12px;">(<?= $pts ?> pts)</span>
                             </td>

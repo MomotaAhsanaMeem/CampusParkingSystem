@@ -1834,19 +1834,37 @@ html.dark .map-zone-btn--active {
 
 .slot-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
-    gap: var(--sp-md);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-gutter);
+    width: 100%;
+}
+@media (min-width: 640px) {
+    .slot-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+@media (min-width: 768px) {
+    .slot-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
 }
 
 .slot-card {
     background: var(--clr-surface);
     border: 1.5px solid var(--clr-border);
     border-radius: var(--r-lg);
-    padding: var(--sp-md);
+    padding: var(--sp-sm);
     display: flex; flex-direction: column; gap: var(--sp-sm);
     position: relative;
     user-select: none;
     transition: box-shadow 200ms, border-color 200ms, transform 150ms;
+    min-width: 0;
+    width: 100%;
+}
+@media (min-width: 768px) {
+    .slot-card {
+        padding: var(--sp-md);
+    }
 }
 .slot-card:focus-visible { outline: 2px solid var(--clr-secondary); outline-offset: 2px; }
 
@@ -2032,7 +2050,6 @@ html.dark .map-zone-btn--active {
 @media (max-width: 640px) {
     .navbar-brand  { font-size: 17px; }
     .navbar-brand-icon { width: 28px; height: 28px; font-size: 13px; }
-    .slot-grid     { grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 12px; }
     .rate-result   { flex-direction: column; align-items: flex-start; gap: 8px; }
     .rate-result-value { font-size: 26px; }
     .hero-img-wrap { height: 280px; }
@@ -2055,8 +2072,7 @@ html.dark .map-zone-btn--active {
 
 @media (max-width: 360px) {
     .dashboard-stats { grid-template-columns: 1fr; }
-    .slot-grid       { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .slot-card       { padding: 10px; }
+    .slot-card       { padding: 8px; }
     .slot-card-code  { font-size: 18px; }
     .navbar-brand    { font-size: 15px; gap: 6px; }
 }
@@ -2766,5 +2782,80 @@ html.dark .btn-checkout {
 html.dark .btn-checkout:hover {
     box-shadow: 0 4px 14px rgba(34, 211, 238, 0.45);
     color: #0F172A !important;
+}
+
+/* ==========================================================================
+   26. Time-Block Toggle Buttons (book-slot modal)
+   ========================================================================== */
+
+.time-block-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    width: 100%;
+}
+
+.btn-time-block {
+    background: var(--clr-surface);
+    border: 1.5px solid var(--clr-border);
+    border-radius: var(--r);
+    font-family: var(--ff);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 10px 4px;
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.4;
+    color: var(--clr-text);
+    transition: border-color 120ms ease, background 120ms ease, color 120ms ease, transform 80ms ease;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.btn-time-block:hover:not(:disabled) {
+    border-color: var(--clr-secondary);
+    color: var(--clr-secondary);
+    transform: translateY(-1px);
+}
+.btn-time-block--selected,
+.btn-time-block.btn-time-block--selected {
+    background: var(--clr-secondary);
+    border-color: var(--clr-secondary);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(8,145,178,0.35);
+}
+.btn-time-block--disabled,
+.btn-time-block:disabled {
+    background: rgba(100,116,139,0.06);
+    border-color: var(--clr-border);
+    color: var(--clr-text-muted);
+    cursor: not-allowed;
+    opacity: 0.55;
+    text-decoration: line-through;
+    transform: none;
+}
+
+/* Dark mode */
+html.dark .btn-time-block {
+    background: #1A202C;
+    border-color: rgba(255,255,255,0.12);
+    color: #CBD5E1;
+}
+html.dark .btn-time-block:hover:not(:disabled) {
+    border-color: #22D3EE;
+    color: #22D3EE;
+}
+html.dark .btn-time-block--selected,
+html.dark .btn-time-block.btn-time-block--selected {
+    background: #0891B2;
+    border-color: #0891B2;
+    color: #F0F9FF;
+    box-shadow: 0 2px 10px rgba(8,145,178,0.5);
+}
+html.dark .btn-time-block--disabled,
+html.dark .btn-time-block:disabled {
+    background: rgba(15,19,27,0.6);
+    border-color: rgba(255,255,255,0.06);
+    color: #475569;
 }
 
