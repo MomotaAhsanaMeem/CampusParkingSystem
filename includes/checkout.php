@@ -1,10 +1,12 @@
 <?php
 // checkout.php — POST-only handler for check-out action.
 // Sets check_out_time = NOW() and status = 'completed'.
-// Compares check_out_time against booking's end_time (with 15-minute grace period).
-// If overstay exceeds 15 minutes, calculates late penalty at 5 points per 15-min block.
-// Deducts any remaining penalty points (crediting any already deducted via reports).
-// NO freezing system for overstayers (point deduction only).
+// Compares check_out_time against booking's scheduled end_time.
+// If overstay occurs:
+// - Calculates overtime penalty at 20 points/hour (in 30-second decimal units).
+// - Deducts remaining penalty points (offsetting any points already deducted via occupant reports).
+// - Increments user's late_departure_count.
+// - Every 3 late checkouts triggers a temporary 120-second booking restriction (booking_locked_until = now + 120s).
 // Never outputs HTML; always redirects back to dashboard.
 
 require_once __DIR__ . '/db.php';
@@ -62,11 +64,11 @@ if (!empty($booking['end_time'])) {
 $checked_out  = strtotime($checkout_time);
 $seconds_over = $checked_out - $scheduled_end_ts;
 
-// Grace period removed: on-time if checkout <= scheduled end
 if ($seconds_over <= 0) {
     $_SESSION['flash'] = 'Checked out on time! Have a great day.';
 } else {
-    // Overstay penalty: every 30 seconds in decimals (20 points / hour)
+    // Late departure penalty enforcement:
+    // 1. Calculate & deduct overtime points (20 points / hour in 30-second increments)
     $units_30s     = max(1, (int) ceil($seconds_over / 30));
     $total_penalty = round($units_30s * (20.0 / 120.0), 2);
 
@@ -96,11 +98,33 @@ if ($seconds_over <= 0) {
         } catch (Throwable $ignoreTx) {}
     }
 
+    // 2. Increment user's late_departure_count
+    $incDep = $pdo->prepare('UPDATE users SET late_departure_count = late_departure_count + 1 WHERE id = ?');
+    $incDep->execute([$user_id]);
+
+    $cntStmt = $pdo->prepare('SELECT late_departure_count FROM users WHERE id = ?');
+    $cntStmt->execute([$user_id]);
+    $new_late_departure = (int) $cntStmt->fetchColumn();
+    $_SESSION['late_count'] = $new_late_departure;
+
+    // 3. Automated Penalty: Every 3 late checkouts trigger a temporary 120-second booking restriction
+    $freeze_msg = '';
+    if ($new_late_departure % 3 === 0) {
+        $lock_until = date('Y-m-d H:i:s', time() + 120);
+        $lockStmt = $pdo->prepare('UPDATE users SET booking_locked_until = ? WHERE id = ?');
+        $lockStmt->execute([$lock_until, $user_id]);
+        $_SESSION['booking_locked_until'] = $lock_until;
+        $freeze_msg = " Warning ({$new_late_departure}/3): System frozen! Your booking privileges are suspended for 120 seconds due to 3 late checkouts.";
+    } else {
+        $rem = 3 - ($new_late_departure % 3);
+        $freeze_msg = " Warning ({$new_late_departure}/3): {$rem} more late checkout(s) will freeze your booking privileges for 120 seconds.";
+    }
+
     $time_over_str = ($seconds_over < 60) ? "{$seconds_over}s" : ((int)ceil($seconds_over / 60) . " min");
     if ($to_deduct > 0) {
-        $_SESSION['flash'] = "Checked out. Overstay: {$time_over_str}. Penalty: {$units_30s} x 30s = {$total_penalty} points (-20 pts/hr). {$to_deduct} points deducted.";
+        $_SESSION['flash'] = "Checked out. Overstay: {$time_over_str}. Penalty: {$units_30s} x 30s = {$total_penalty} points (-20 pts/hr). {$to_deduct} points deducted.{$freeze_msg}";
     } else {
-        $_SESSION['flash'] = "Checked out. Overstay: {$time_over_str}. Total penalty: {$total_penalty} points (already deducted via report).";
+        $_SESSION['flash'] = "Checked out. Overstay: {$time_over_str}. Total penalty: {$total_penalty} points (already deducted via report).{$freeze_msg}";
     }
 }
 

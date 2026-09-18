@@ -76,10 +76,19 @@ try {
                 $pdo->exec("ALTER TABLE bookings ADD COLUMN is_late_checkin TINYINT(1) NOT NULL DEFAULT 0 AFTER status");
             }
 
-            // Check if users has late_checkin_count column (3 late check-ins freeze system)
+            // Check if users has late_checkin_count column
             $colCheck5 = $pdo->query("SHOW COLUMNS FROM users LIKE 'late_checkin_count'");
             if ($colCheck5 && !$colCheck5->fetch()) {
                 $pdo->exec("ALTER TABLE users ADD COLUMN late_checkin_count INT NOT NULL DEFAULT 0 AFTER late_departure_count");
+            }
+
+            // Ensure booking_locked_until is DATETIME for 120-second precision
+            $colLock = $pdo->query("SHOW COLUMNS FROM users LIKE 'booking_locked_until'");
+            if ($colLock) {
+                $rowL = $colLock->fetch(PDO::FETCH_ASSOC);
+                if ($rowL && !str_starts_with(strtolower($rowL['Type']), 'datetime')) {
+                    $pdo->exec("ALTER TABLE users MODIFY COLUMN booking_locked_until DATETIME DEFAULT NULL");
+                }
             }
 
             // Check if bookings has penalty_points_deducted column

@@ -1,13 +1,11 @@
--- Parking Reservation System — Update 1 schema
--- Scope: users (auth) + slots + bookings only.
--- Admin table, notifications, requests/transactions come in later updates.
+-- CampusPark — Database Schema & Initial Seed Data
+-- Comprehensive schema: users, parking_slots, bookings, complaints, point_transactions
 
 CREATE DATABASE IF NOT EXISTS parking_system;
 USE parking_system;
 
--- 1. Users (also doubles as the "admin" table via a role flag —
---    simpler than a separate admin table for a group project)
-CREATE TABLE users (
+-- 1. Users table
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
@@ -15,14 +13,14 @@ CREATE TABLE users (
     role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
     late_departure_count INT NOT NULL DEFAULT 0,
     late_checkin_count INT NOT NULL DEFAULT 0,
-    booking_locked_until DATE DEFAULT NULL, -- set when late_checkin_count hits a multiple of 3 (24h freeze)
+    booking_locked_until DATETIME DEFAULT NULL, -- set when late_departure_count hits a multiple of 3 (120s freeze)
     reward_points DECIMAL(10,2) NOT NULL DEFAULT 100.00,
     package_tier VARCHAR(50) DEFAULT 'Starter',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Slot management
-CREATE TABLE parking_slots (
+-- 2. Parking slots
+CREATE TABLE IF NOT EXISTS parking_slots (
     id INT AUTO_INCREMENT PRIMARY KEY,
     slot_code VARCHAR(10) NOT NULL UNIQUE,   -- e.g. 'A1', 'B12'
     zone VARCHAR(50) NOT NULL,
@@ -30,8 +28,8 @@ CREATE TABLE parking_slots (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. Bookings (the "book slot" feature — Update 1's main feature)
-CREATE TABLE bookings (
+-- 3. Bookings
+CREATE TABLE IF NOT EXISTS bookings (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     slot_id INT NOT NULL,
@@ -51,7 +49,7 @@ CREATE TABLE bookings (
 );
 
 -- 4. Complaints table (for slot-occupying overstayer reports)
-CREATE TABLE complaints (
+CREATE TABLE IF NOT EXISTS complaints (
     id INT AUTO_INCREMENT PRIMARY KEY,
     blocked_booking_id   INT NOT NULL,
     occupying_booking_id INT NOT NULL,
@@ -64,11 +62,11 @@ CREATE TABLE complaints (
     FOREIGN KEY (complainant_id)        REFERENCES users(id)   ON DELETE CASCADE
 );
 
--- 4. Point transactions and demo payment log
-CREATE TABLE point_transactions (
+-- 5. Point transactions and demo payment log
+CREATE TABLE IF NOT EXISTS point_transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    type ENUM('signup_bonus', 'booking_deduction', 'package_purchase') NOT NULL,
+    type VARCHAR(50) NOT NULL, -- 'signup_bonus', 'booking_deduction', 'package_purchase', 'late_fine', 'report_reward'
     points DECIMAL(10,2) NOT NULL,
     package_name VARCHAR(50) DEFAULT NULL,
     description VARCHAR(255) DEFAULT NULL,
@@ -76,9 +74,27 @@ CREATE TABLE point_transactions (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Seed a few test slots so Update 1 has something to book
+-- 6. Seed Parking Slots across campus zones
 INSERT INTO parking_slots (slot_code, zone) VALUES
 ('A1', 'North Campus'),
 ('A2', 'North Campus'),
+('A3', 'North Campus'),
+('A4', 'North Campus'),
 ('B1', 'South Campus'),
-('B2', 'South Campus');
+('B2', 'South Campus'),
+('B3', 'South Campus'),
+('B4', 'South Campus'),
+('C1', 'Central Campus'),
+('C2', 'Central Campus')
+ON DUPLICATE KEY UPDATE zone = VALUES(zone);
+
+-- 7. Seed Demo Accounts for Instant Local Testing (Password for both: password123)
+INSERT INTO users (id, full_name, email, password_hash, role, reward_points, package_tier) VALUES
+(1, 'Demo Student', 'student@campuspark.edu', '$2y$10$uQKdAa7PhWnSeMgF1a/ti.SOzN/E9DMiMrS2d5XbXFKifPLnl8kfW', 'user', 100.00, 'Starter'),
+(2, 'Test Driver 2', 'driver2@campuspark.edu', '$2y$10$uQKdAa7PhWnSeMgF1a/ti.SOzN/E9DMiMrS2d5XbXFKifPLnl8kfW', 'user', 100.00, 'Starter')
+ON DUPLICATE KEY UPDATE full_name = VALUES(full_name);
+
+INSERT INTO point_transactions (user_id, type, points, description) VALUES
+(1, 'signup_bonus', 100.00, 'Welcome bonus reward points'),
+(2, 'signup_bonus', 100.00, 'Welcome bonus reward points')
+ON DUPLICATE KEY UPDATE description = VALUES(description);

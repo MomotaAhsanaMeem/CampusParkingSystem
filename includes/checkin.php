@@ -1,10 +1,10 @@
 <?php
 // checkin.php — POST-only handler for check-in, report overstayer, and extend slot actions:
 //   action=checkin     — enforces start_time access and checks if slot is occupied.
-//                        Tracks late check-ins (>15 min late): every 3 late check-ins freezes the booking system.
-//   action=report      — files complaint if occupying vehicle is overstaying > 15 minutes.
-//                        Awards complainant +5 points, deducts 5 points from overstayer. No freezing for overstayer.
-//   action=extend_slot — if next slot on the bay is empty without booking, overstayer can book it (10 pts)
+//                        Tracks late check-ins (>15 min late) for record-keeping.
+//   action=report      — files complaint if occupying vehicle is overstaying.
+//                        Awards complainant reward points, deducts points from overstayer.
+//   action=extend_slot — if next slot on the bay is empty without booking, driver can book it (10 pts)
 //                        to extend stay and avoid penalty.
 // Never outputs HTML; always redirects back to dashboard.
 
@@ -427,18 +427,8 @@ try {
         $new_late_count = (int) $cntStmt->fetchColumn();
         $_SESSION['late_checkin_count'] = $new_late_count;
 
-        // "for each 3 late checkins (late crossed 15 mins) freeze system"
-        if ($new_late_count % 3 === 0) {
-            $tomorrow = date('Y-m-d', strtotime('+1 day'));
-            $lockStmt = $pdo->prepare('UPDATE users SET booking_locked_until = ? WHERE id = ?');
-            $lockStmt->execute([$tomorrow, $user_id]);
-            $_SESSION['booking_locked_until'] = $tomorrow;
-
-            $_SESSION['flash'] = "Checked in late (arrived more than 15 minutes past start time). Warning {$new_late_count}/3: System frozen! Your booking privileges are suspended until {$tomorrow} due to 3 late check-ins.";
-        } else {
-            $rem = 3 - ($new_late_count % 3);
-            $_SESSION['flash'] = "Checked in late (arrived more than 15 minutes past start time). Warning {$new_late_count}/3 — {$rem} more late check-in(s) will freeze your booking privileges.";
-        }
+        // Late check-ins are recorded on account, but booking restriction is enforced on late departures
+        $_SESSION['flash'] = "Checked in late (arrived more than 15 minutes past start time). Your slot time is now active.";
     } else {
         // On-time check-in
         $upd = $pdo->prepare(

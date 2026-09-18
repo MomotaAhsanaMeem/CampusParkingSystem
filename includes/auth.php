@@ -39,22 +39,39 @@ function require_admin(): void {
 // Returns a small array of the current user's session identity values.
 function current_user(): array {
     return [
-        'id'            => $_SESSION['user_id']       ?? null,
-        'role'          => $_SESSION['role']          ?? null,
-        'name'          => $_SESSION['name']          ?? null,
+        'id'                 => $_SESSION['user_id']       ?? null,
+        'role'               => $_SESSION['role']          ?? null,
+        'name'               => $_SESSION['name']          ?? null,
         'reward_points'      => (float) ($_SESSION['reward_points'] ?? 0),
         'package_tier'       => $_SESSION['package_tier']  ?? 'Starter',
         'late_checkin_count' => (int) ($_SESSION['late_checkin_count'] ?? 0),
+        'late_count'         => (int) ($_SESSION['late_count'] ?? 0),
     ];
 }
 
 // Returns true when the user is currently serving a booking lock.
-// The lock is lifted automatically once booking_locked_until passes today.
+// The lock is lifted automatically once booking_locked_until passes the current timestamp.
 function is_booking_locked(): bool {
     if (empty($_SESSION['booking_locked_until'])) {
         return false;
     }
-    return $_SESSION['booking_locked_until'] >= date('Y-m-d');
+    $locked_ts = strtotime($_SESSION['booking_locked_until']);
+    if ($locked_ts === false) {
+        return false;
+    }
+    return $locked_ts > time();
+}
+
+// Returns remaining seconds on an active booking freeze (0 if not locked)
+function booking_lock_remaining_seconds(): int {
+    if (empty($_SESSION['booking_locked_until'])) {
+        return 0;
+    }
+    $locked_ts = strtotime($_SESSION['booking_locked_until']);
+    if ($locked_ts === false) {
+        return 0;
+    }
+    return max(0, $locked_ts - time());
 }
 
 // Persist user identity into the session after a successful login or signup.
@@ -70,14 +87,15 @@ function login_user(array $user): void {
     $_SESSION['package_tier']         = $user['package_tier'] ?? 'Starter';
 }
 
-// Refresh user points, package tier, and late check-in count from DB and update session.
+// Refresh user points, package tier, late counts, and lock status from DB and update session.
 function refresh_user_points(PDO $pdo, int $user_id): float {
-    $stmt = $pdo->prepare('SELECT reward_points, package_tier, late_checkin_count, booking_locked_until FROM users WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT reward_points, package_tier, late_checkin_count, late_departure_count, booking_locked_until FROM users WHERE id = ?');
     $stmt->execute([$user_id]);
     $row = $stmt->fetch();
     if ($row) {
         $_SESSION['reward_points']        = (float) ($row['reward_points'] ?? 0);
         $_SESSION['late_checkin_count']   = (int) ($row['late_checkin_count'] ?? 0);
+        $_SESSION['late_count']           = (int) ($row['late_departure_count'] ?? 0);
         $_SESSION['booking_locked_until'] = $row['booking_locked_until'] ?? null;
         if (!empty($row['package_tier'])) {
             $_SESSION['package_tier'] = $row['package_tier'];

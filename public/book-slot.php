@@ -4,8 +4,8 @@ require_once __DIR__ . '/../includes/auth.php';
 require_login();
 
 $user        = current_user();
-$is_locked   = is_booking_locked();
 $user_points = refresh_user_points($pdo, $user['id']);
+$is_locked   = is_booking_locked();
 
 // Redirect to payment if points too low for even 1 hour
 if ($user_points < 10) {
@@ -234,14 +234,33 @@ require_once __DIR__ . '/../includes/header.php';
 <div class="pt-24 pb-16 px-margin-mobile md:px-margin-desktop w-full max-w-7xl mx-auto">
 
     <!-- Booking-lock banner -->
-    <?php if ($is_locked): ?>
-    <div class="alert alert-warning mb-gutter w-full" role="alert">
+    <?php if ($is_locked): 
+        $rem_sec = booking_lock_remaining_seconds();
+    ?>
+    <div class="alert alert-warning mb-gutter w-full" role="alert" id="lockBanner">
         <span class="alert-icon material-symbols-outlined shrink-0" aria-hidden="true">lock</span>
         <div>
-            <strong>Booking suspended.</strong> You have 3 late departures.
-            Reservations disabled until <strong><?= htmlspecialchars($_SESSION['booking_locked_until'] ?? '—') ?></strong>.
+            <strong>Booking temporarily suspended.</strong> You have reached 3 late checkouts.
+            Reservations disabled for <strong id="lockCountdown" data-seconds="<?= $rem_sec ?>"><?= $rem_sec ?>s</strong>.
         </div>
     </div>
+    <script>
+    (function(){
+        var el = document.getElementById('lockCountdown');
+        if (!el) return;
+        var s = parseInt(el.getAttribute('data-seconds'), 10) || 0;
+        var timer = setInterval(function() {
+            s--;
+            if (s <= 0) {
+                clearInterval(timer);
+                el.textContent = 'Unlocking...';
+                setTimeout(function(){ window.location.reload(); }, 500);
+            } else {
+                el.textContent = s + 's';
+            }
+        }, 1000);
+    })();
+    </script>
     <?php endif; ?>
 
     <!-- Multiple-booking warning banner -->

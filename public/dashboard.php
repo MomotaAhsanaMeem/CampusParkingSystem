@@ -4,9 +4,38 @@ require_once __DIR__ . '/../includes/auth.php';
 require_login();
 
 $user        = current_user();
-$is_locked   = is_booking_locked();
 $user_points = refresh_user_points($pdo, $user['id']);
+$is_locked   = is_booking_locked();
 $package_tier = $_SESSION['package_tier'] ?? 'Starter';
+
+// Authoritative late checkouts count (counted immediately from DB)
+$lateQuery = $pdo->prepare(
+    "SELECT COUNT(*) FROM bookings 
+      WHERE user_id = ? 
+        AND status = 'completed' 
+        AND check_out_time IS NOT NULL 
+        AND end_time IS NOT NULL 
+        AND check_out_time > CONCAT(booking_date, ' ', end_time)"
+);
+$lateQuery->execute([$user['id']]);
+$db_completed_late = (int) $lateQuery->fetchColumn();
+
+// Synchronize immediately with user profile
+$current_late_count = max((int)($_SESSION['late_count'] ?? 0), $db_completed_late);
+if ($current_late_count > (int)($_SESSION['late_count'] ?? 0)) {
+    $pdo->prepare('UPDATE users SET late_departure_count = ? WHERE id = ?')->execute([$current_late_count, $user['id']]);
+    $_SESSION['late_count'] = $current_late_count;
+}
+
+// If user already reached 3 or more late checkouts but lock was never triggered (e.g. from previous unserved checkouts):
+if ($current_late_count >= 3 && empty($_SESSION['booking_locked_until'])) {
+    $lock_until = date('Y-m-d H:i:s', time() + 120);
+    $pdo->prepare('UPDATE users SET booking_locked_until = ? WHERE id = ?')->execute([$lock_until, $user['id']]);
+    $_SESSION['booking_locked_until'] = $lock_until;
+    $is_locked = true;
+}
+
+$cycle_strike = ($current_late_count > 0 && $current_late_count % 3 === 0) ? 3 : ($current_late_count % 3);
 
 // Fetch latest 10 bookings including duration, points cost, check-in/out times, and time range
 $stmt = $pdo->prepare(
@@ -140,14 +169,33 @@ require_once __DIR__ . '/../includes/header.php';
 <div class="pt-24 pb-16 px-margin-mobile md:px-margin-desktop w-full max-w-7xl mx-auto">
 
     <!-- Booking-lock banner -->
-    <?php if ($is_locked): ?>
-    <div class="alert alert-warning mb-md" role="alert">
+    <?php if ($is_locked): 
+        $rem_sec = booking_lock_remaining_seconds();
+    ?>
+    <div class="alert alert-warning mb-md" role="alert" id="lockBanner">
         <span class="alert-icon material-symbols-outlined" aria-hidden="true">lock</span>
         <div>
-            <strong>Booking privileges suspended</strong> — you have reached 3 late check-ins on record.
-            Unlocks on <strong><?= htmlspecialchars($_SESSION['booking_locked_until'] ?? '—') ?></strong>.
+            <strong>Booking privileges temporarily suspended</strong> — you have reached 3 late checkouts.
+            Privileges unlock in <strong id="lockCountdown" data-seconds="<?= $rem_sec ?>"><?= $rem_sec ?>s</strong>.
         </div>
     </div>
+    <script>
+    (function(){
+        var el = document.getElementById('lockCountdown');
+        if (!el) return;
+        var s = parseInt(el.getAttribute('data-seconds'), 10) || 0;
+        var timer = setInterval(function() {
+            s--;
+            if (s <= 0) {
+                clearInterval(timer);
+                el.textContent = 'Unlocking...';
+                setTimeout(function(){ window.location.reload(); }, 500);
+            } else {
+                el.textContent = s + 's';
+            }
+        }, 1000);
+    })();
+    </script>
     <?php endif; ?>
 
     <!-- Active session extension banner (overstayer can book empty next slot to avoid penalty) -->
@@ -309,11 +357,19 @@ require_once __DIR__ . '/../includes/header.php';
             <span style="font-size:12px; color:var(--clr-text-muted); margin-top:2px;">All-time parking bays</span>
         </div>
         <div class="stat-card">
-            <span class="stat-card-label">Late Check-ins</span>
+            <span class="stat-card-label">Late Checkouts</span>
             <span class="stat-card-value <?= $is_locked ? 'stat-card-value--terra' : '' ?>">
-                <?= (int) ($_SESSION['late_checkin_count'] ?? 0) ?> / 3
+                <?= $cycle_strike ?> / 3
             </span>
-            <span style="font-size:12px; color:var(--clr-text-muted); margin-top:2px;">3 late check-ins = 24h freeze</span>
+            <span style="font-size:12px; color:var(--clr-text-muted); margin-top:2px;">
+                <?php if ($is_locked): ?>
+                    <span style="color:var(--clr-error, #b91c1c); font-weight:600;">System frozen (120s)</span>
+                <?php elseif ($my_is_overstay): ?>
+                    <span style="color:#D97706; font-weight:600;">1 Active Overstay</span>
+                <?php else: ?>
+                    <?= $current_late_count > 3 ? "{$current_late_count} total — 3 late = 120s freeze" : "3 late checkouts = 120s freeze" ?>
+                <?php endif; ?>
+            </span>
         </div>
     </div>
 
