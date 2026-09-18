@@ -146,7 +146,8 @@ $current_file = basename($_SERVER['PHP_SELF']);
             dark_mode
         </button>
         <?php if ($is_authed): 
-            $user_pts = (int) ($user['reward_points'] ?? ($_SESSION['reward_points'] ?? 0));
+            $user_pts = (float) ($user['reward_points'] ?? ($_SESSION['reward_points'] ?? 0));
+            $user_pts_str = ($user_pts == (int)$user_pts) ? (int)$user_pts : number_format($user_pts, 2);
         ?>
             <a href="<?= BASE_URL ?>/public/dashboard.php"
                class="nav-link <?= $current_file === 'dashboard.php' ? 'nav-link--active' : '' ?>">
@@ -160,7 +161,7 @@ $current_file = basename($_SERVER['PHP_SELF']);
                class="nav-points-badge <?= $current_file === 'payment.php' ? 'nav-points-badge--active' : '' ?>"
                title="Reward Points & Payment Packages">
                 <span class="material-symbols-outlined" style="font-size:16px;">toll</span>
-                <span><?= $user_pts ?> pts</span>
+                <span><?= $user_pts_str ?> pts</span>
             </a>
             <span class="nav-link text-muted" style="cursor:default; font-size:13px;">
                 <?= htmlspecialchars($user['full_name'] ?? $user['name'] ?? '') ?>
@@ -194,7 +195,8 @@ $current_file = basename($_SERVER['PHP_SELF']);
         <span class="theme-toggle-label">Dark Mode</span>
     </button>
     <?php if ($is_authed): 
-        $user_pts = (int) ($user['reward_points'] ?? ($_SESSION['reward_points'] ?? 0));
+        $user_pts = (float) ($user['reward_points'] ?? ($_SESSION['reward_points'] ?? 0));
+        $user_pts_str = ($user_pts == (int)$user_pts) ? (int)$user_pts : number_format($user_pts, 2);
     ?>
         <a href="<?= BASE_URL ?>/public/dashboard.php"
            class="mobile-nav-link <?= $current_file === 'dashboard.php' ? 'mobile-nav-link--active' : '' ?>">
@@ -211,7 +213,7 @@ $current_file = basename($_SERVER['PHP_SELF']);
                 <span>Payment Packages</span>
             </span>
             <span class="badge" style="background:rgba(8,145,178,0.12); color:var(--clr-secondary); font-weight:700;">
-                <?= $user_pts ?> pts
+                <?= $user_pts_str ?> pts
             </span>
         </a>
         <div class="mobile-nav-user">

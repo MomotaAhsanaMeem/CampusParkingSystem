@@ -195,7 +195,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <div class="text-right sm:text-left">
                     <span class="text-muted" style="font-size:12px; font-weight:600;">Available Balance</span>
                     <div style="font-size:28px; font-weight:800; color:var(--clr-secondary); line-height:1.1;">
-                        <?= $current_points ?> <span style="font-size:16px; font-weight:600; color:var(--clr-text-muted);">pts</span>
+                        <?= ($current_points == (int)$current_points) ? (int)$current_points : number_format($current_points, 2) ?> <span style="font-size:16px; font-weight:600; color:var(--clr-text-muted);">pts</span>
                     </div>
                 </div>
                 <div class="payment-wallet-divider"></div>
@@ -339,7 +339,11 @@ require_once __DIR__ . '/../includes/header.php';
                             <?php endif; ?>
                         </td>
                         <td style="text-align:right; font-weight:800; font-size:15px; color:<?= $is_credit ? '#059669' : '#DC2626' ?>;">
-                            <?= $is_credit ? '+' . (int)$tx['points'] : (int)$tx['points'] ?> pts
+                            <?php 
+                                $tx_pts_val = (float)$tx['points'];
+                                $tx_pts_str = ($tx_pts_val == (int)$tx_pts_val) ? (int)$tx_pts_val : number_format($tx_pts_val, 2);
+                            ?>
+                            <?= $is_credit ? '+' . $tx_pts_str : $tx_pts_str ?> pts
                         </td>
                     </tr>
                     <?php endforeach; ?>

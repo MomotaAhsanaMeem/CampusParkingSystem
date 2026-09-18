@@ -525,6 +525,11 @@ select.form-input {
 .alert-warning { background: #FFFBEB; border-color: #FDE68A; color: #92400E; }
 .alert-info    { background: #ECFEFF; border-color: #A5F3FC; color: #0E7490; }
 
+html.dark .alert-error   { background: rgba(239, 68, 68, 0.18); border-color: rgba(239, 68, 68, 0.45); color: #FCA5A5; }
+html.dark .alert-success { background: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.45); color: #6EE7B7; }
+html.dark .alert-warning { background: rgba(245, 158, 11, 0.18); border-color: rgba(245, 158, 11, 0.45); color: #FCD34D; }
+html.dark .alert-info    { background: rgba(8, 145, 178, 0.18); border-color: rgba(8, 145, 178, 0.45); color: #67E8F9; }
+
 /* --------------------------------------------------------------------------
    8. Cards (generic)
    -------------------------------------------------------------------------- */
@@ -1801,12 +1806,13 @@ html.dark .map-zone-btn--active {
     text-transform: uppercase; letter-spacing: .04em;
     white-space: nowrap;
 }
-.badge-booked      { background: #ECFEFF; color: #0891B2; }
-.badge-checked-in  { background: #EFF6FF; color: #1D4ED8; }
-.badge-completed   { background: #ECFDF5; color: #047857; }
-.badge-cancelled   { background: var(--clr-surface-high); color: var(--clr-text-muted); }
-.badge-available   { background: #ECFDF5; color: #047857; }
-.badge-occupied    { background: #FEF2F2; color: #DC2626; }
+.badge-booked        { background: #ECFEFF; color: #0891B2; }
+.badge-checked-in    { background: #EFF6FF; color: #1D4ED8; }
+.badge-late-checkin  { background: #FEF3C7; color: #B45309; }
+.badge-completed     { background: #ECFDF5; color: #047857; }
+.badge-cancelled     { background: var(--clr-surface-high); color: var(--clr-text-muted); }
+.badge-available     { background: #ECFDF5; color: #047857; }
+.badge-occupied      { background: #FEF2F2; color: #DC2626; }
 
 /* --------------------------------------------------------------------------
    16. Slot grid (book-slot page)
@@ -2327,6 +2333,11 @@ html.dark .badge-checked-in {
     color: #93C5FD;
 }
 
+html.dark .badge-late-checkin {
+    background-color: rgba(245, 158, 11, 0.18);
+    color: #FCD34D;
+}
+
 html.dark .badge-completed {
     background-color: rgba(16, 185, 129, 0.18);
     color: #6EE7B7;
@@ -2784,6 +2795,127 @@ html.dark .btn-checkout:hover {
     color: #0F172A !important;
 }
 
+/* Report action button (table action pill & alert CTA) */
+.btn-report {
+    background: #F59E0B;
+    color: #FFFFFF !important;
+    border: none;
+    border-radius: var(--r-full);
+    font-family: var(--ff);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-xs);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 150ms, transform 150ms, box-shadow 150ms, background 150ms;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.28);
+}
+.btn-report:hover {
+    background: #D97706;
+    color: #FFFFFF !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.38);
+    text-decoration: none;
+}
+.btn-report:active { transform: translateY(0); }
+.btn-report:focus-visible { outline: 2px solid #F59E0B; outline-offset: 2px; }
+
+/* Cancel reservation action button (table action pill) */
+.btn-cancel-action {
+    background: transparent;
+    color: var(--clr-error);
+    border: 1.5px solid var(--clr-error);
+    border-radius: var(--r-full);
+    font-family: var(--ff);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-xs);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 150ms, transform 150ms, box-shadow 150ms, background 150ms, border-color 150ms, color 150ms;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(185, 28, 28, 0.08);
+}
+.btn-cancel-action:hover {
+    background: #FEF2F2;
+    color: #991B1B;
+    border-color: #B91C1C;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(185, 28, 28, 0.18);
+    text-decoration: none;
+}
+.btn-cancel-action:active { transform: translateY(0); }
+.btn-cancel-action:focus-visible { outline: 2px solid var(--clr-error); outline-offset: 2px; }
+
+/* Danger submit button (used in cancel modal) */
+.btn-danger {
+    background: var(--clr-error);
+    color: #FFFFFF !important;
+    border: none;
+    border-radius: var(--r-full);
+    font-family: var(--ff);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-xs);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(185, 28, 28, 0.3);
+    transition: background 150ms, transform 150ms, box-shadow 150ms;
+    text-decoration: none;
+}
+.btn-danger:hover {
+    background: #991B1B;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(185, 28, 28, 0.4);
+    color: #FFFFFF !important;
+    text-decoration: none;
+}
+.btn-danger:active { transform: translateY(0); }
+.btn-danger:focus-visible { outline: 2px solid var(--clr-error); outline-offset: 2px; }
+
+/* Dark mode overrides for report, cancel and danger buttons */
+html.dark .btn-report {
+    background: #D97706;
+    color: #FFFFFF !important;
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.4);
+}
+html.dark .btn-report:hover {
+    background: #B45309;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.55);
+}
+html.dark .btn-cancel-action {
+    color: #F87171;
+    border-color: rgba(248, 113, 113, 0.55);
+    background: transparent;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+html.dark .btn-cancel-action:hover {
+    background: rgba(185, 28, 28, 0.22);
+    border-color: #F87171;
+    color: #FECACA;
+    box-shadow: 0 3px 10px rgba(239, 68, 68, 0.28);
+}
+html.dark .btn-danger {
+    background: #DC2626;
+    color: #FFFFFF !important;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+}
+html.dark .btn-danger:hover {
+    background: #B91C1C;
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.55);
+    color: #FFFFFF !important;
+}
+
 /* ==========================================================================
    26. Time-Block Toggle Buttons (book-slot modal)
    ========================================================================== */
@@ -2858,4 +2990,145 @@ html.dark .btn-time-block:disabled {
     border-color: rgba(255,255,255,0.06);
     color: #475569;
 }
+
+/* ==========================================================================
+   Flexible Start/End Time Selection & Booked Slots Display
+   ========================================================================== */
+
+.existing-bookings-box {
+    background: rgba(100, 116, 139, 0.06);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--r-md);
+    padding: 8px 12px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.no-bookings-notice {
+    font-size: 12px;
+    color: var(--clr-success);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+}
+
+.existing-bookings-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.booking-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: var(--r-full);
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--ff-mono, monospace);
+    border: 1px solid transparent;
+    transition: all 150ms ease;
+}
+
+.booking-chip--mine {
+    background: rgba(8, 145, 178, 0.12);
+    border-color: rgba(8, 145, 178, 0.35);
+    color: var(--clr-secondary);
+}
+
+.booking-chip--other {
+    background: rgba(239, 68, 68, 0.10);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #DC2626;
+}
+
+.booking-chip-tag {
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 9999px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.time-pickers-grid {
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+
+.time-pickers-grid input[type="time"] {
+    font-family: var(--ff-mono, monospace);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: var(--r-md);
+}
+
+.quick-preset-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding-top: 4px;
+}
+
+.btn-preset {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: var(--r-full);
+    background: rgba(8, 145, 178, 0.08);
+    border: 1px solid rgba(8, 145, 178, 0.25);
+    color: var(--clr-secondary);
+    cursor: pointer;
+    transition: all 150ms ease;
+    font-family: inherit;
+}
+
+.btn-preset:hover {
+    background: var(--clr-secondary);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(8, 145, 178, 0.3);
+}
+
+.btn-preset:active {
+    transform: translateY(0);
+}
+
+/* Dark mode overrides */
+html.dark .existing-bookings-box {
+    background: rgba(15, 19, 27, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+html.dark .booking-chip--mine {
+    background: rgba(34, 211, 238, 0.15);
+    border-color: rgba(34, 211, 238, 0.4);
+    color: #38BDF8;
+}
+
+html.dark .booking-chip--other {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #F87171;
+}
+
+html.dark .btn-preset {
+    background: rgba(34, 211, 238, 0.12);
+    border-color: rgba(34, 211, 238, 0.3);
+    color: #38BDF8;
+}
+
+html.dark .btn-preset:hover {
+    background: #0891B2;
+    color: #FFFFFF;
+}
+
 

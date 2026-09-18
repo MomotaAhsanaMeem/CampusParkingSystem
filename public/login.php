@@ -54,8 +54,8 @@ require_once __DIR__ . '/../includes/header.php';
             <p class="auth-header-subtitle">Log in to manage your reservations and live radar telemetry.</p>
 
             <?php if ($error_banner !== ''): ?>
-                <div class="alert alert-error mb-4" role="alert" style="border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:10px; background:#FEF2F2; color:#B91C1C; border:1px solid #FCA5A5;">
-                    <span class="material-symbols-outlined" aria-hidden="true" style="font-size:20px;">warning</span>
+                <div class="alert alert-error mb-4" role="alert" style="border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:10px;">
+                    <span class="material-symbols-outlined shrink-0" aria-hidden="true" style="font-size:22px; color:var(--clr-error, #EF4444);">error</span>
                     <span style="font-size:14px; font-weight:600;"><?= htmlspecialchars($error_banner) ?></span>
                 </div>
             <?php endif; ?>

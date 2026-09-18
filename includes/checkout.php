@@ -1,9 +1,10 @@
 <?php
 // checkout.php — POST-only handler for check-out action.
-// Sets check_out_time = NOW() and status = 'completed', then compares
-// check_out_time against the booking's own end_time + 15 min grace period.
-// Late departures incur a point fine (5 pts per started 15-min block),
-// increment late_departure_count, and optionally freeze booking access.
+// Sets check_out_time = NOW() and status = 'completed'.
+// Compares check_out_time against booking's end_time (with 15-minute grace period).
+// If overstay exceeds 15 minutes, calculates late penalty at 5 points per 15-min block.
+// Deducts any remaining penalty points (crediting any already deducted via reports).
+// NO freezing system for overstayers (point deduction only).
 // Never outputs HTML; always redirects back to dashboard.
 
 require_once __DIR__ . '/db.php';
@@ -27,9 +28,8 @@ if ($booking_id <= 0) {
 }
 
 // Fetch the booking — must belong to this user and be status='checked_in'.
-// Also pull booking_date + end_time so we can compute the deadline accurately.
 $stmt = $pdo->prepare(
-    "SELECT id, check_in_time, booking_date, end_time
+    "SELECT id, check_in_time, booking_date, start_time, end_time, penalty_points_deducted
        FROM bookings WHERE id = ? AND user_id = ? AND status = 'checked_in'"
 );
 $stmt->execute([$booking_id, $user_id]);
@@ -52,65 +52,58 @@ $row = $pdo->prepare('SELECT check_out_time FROM bookings WHERE id = ?');
 $row->execute([$booking_id]);
 $checkout_time = $row->fetchColumn();
 
-// Deadline = booking's own end_time + 15-minute grace period.
-// Falls back to check_in_time + 4h15m for legacy bookings without an end_time.
+// Scheduled end timestamp
 if (!empty($booking['end_time'])) {
-    $deadline = strtotime($booking['booking_date'] . ' ' . $booking['end_time']) + (15 * 60);
+    $scheduled_end_ts = strtotime($booking['booking_date'] . ' ' . $booking['end_time']);
 } else {
-    $deadline = strtotime($booking['check_in_time']) + (4 * 3600) + (15 * 60);
+    $scheduled_end_ts = strtotime($booking['check_in_time']) + (4 * 3600);
 }
 
 $checked_out  = strtotime($checkout_time);
-$seconds_over = $checked_out - $deadline;
-$is_late      = $seconds_over > 0;
+$seconds_over = $checked_out - $scheduled_end_ts;
 
-if (!$is_late) {
-    // On-time checkout — no points adjustment.
-    $_SESSION['flash'] = 'Checked out on time!';
+// Grace period removed: on-time if checkout <= scheduled end
+if ($seconds_over <= 0) {
+    $_SESSION['flash'] = 'Checked out on time! Have a great day.';
 } else {
-    // --- Fine calculation ---
-    // 5 points per started 15-minute block past the deadline (minimum 5 pts).
-    $blocks_over = (int) ceil($seconds_over / (15 * 60));
-    $fine_pts    = $blocks_over * 5;
+    // Overstay penalty: every 30 seconds in decimals (20 points / hour)
+    $units_30s     = max(1, (int) ceil($seconds_over / 30));
+    $total_penalty = round($units_30s * (20.0 / 120.0), 2);
 
-    // Deduct the fine — points may go negative (signals debt to the user).
-    $fineStmt = $pdo->prepare(
-        'UPDATE users SET reward_points = reward_points - ? WHERE id = ?'
-    );
-    $fineStmt->execute([$fine_pts, $user_id]);
-    refresh_user_points($pdo, $user_id);
+    // Deduct remaining points (offsetting points already deducted from reports)
+    $already_deducted = (float) ($booking['penalty_points_deducted'] ?? 0);
+    $to_deduct        = max(0.0, round($total_penalty - $already_deducted, 2));
 
-    // --- Late-departure counter ---
-    $inc = $pdo->prepare(
-        'UPDATE users SET late_departure_count = late_departure_count + 1 WHERE id = ?'
-    );
-    $inc->execute([$user_id]);
+    if ($to_deduct > 0) {
+        $fineStmt = $pdo->prepare('UPDATE users SET reward_points = reward_points - ? WHERE id = ?');
+        $fineStmt->execute([$to_deduct, $user_id]);
 
-    // Fetch updated count to decide whether to lock bookings.
-    $cntStmt = $pdo->prepare('SELECT late_departure_count FROM users WHERE id = ?');
-    $cntStmt->execute([$user_id]);
-    $new_count = (int) $cntStmt->fetchColumn();
-    $_SESSION['late_count'] = $new_count;
+        $trackStmt = $pdo->prepare('UPDATE bookings SET penalty_points_deducted = penalty_points_deducted + ? WHERE id = ?');
+        $trackStmt->execute([$to_deduct, $booking_id]);
 
-    // Human-readable overrun duration for the flash message.
-    $mins_over  = (int) ceil($seconds_over / 60);
-    $fine_label = "-{$fine_pts} pts fine ({$mins_over} min late)";
+        refresh_user_points($pdo, $user_id);
 
-    if ($new_count % 3 === 0) {
-        // Lock bookings until tomorrow.
-        $tomorrow = date('Y-m-d', strtotime('+1 day'));
-        $lock = $pdo->prepare(
-            'UPDATE users SET booking_locked_until = ? WHERE id = ?'
-        );
-        $lock->execute([$tomorrow, $user_id]);
-        $_SESSION['booking_locked_until'] = $tomorrow;
+        try {
+            $tx = $pdo->prepare(
+                "INSERT INTO point_transactions (user_id, type, points, description)
+                 VALUES (?, 'late_fine', ?, ?)"
+            );
+            $tx->execute([
+                $user_id,
+                -$to_deduct,
+                "Late check-out penalty: -{$to_deduct} pts ({$seconds_over}s overstay, {$units_30s}x30s @ 20 pts/hr = {$total_penalty} pts total)"
+            ]);
+        } catch (Throwable $ignoreTx) {}
+    }
 
-        $_SESSION['flash'] = "Late check-out — {$fine_label}. You've reached {$new_count} late departures; booking access is suspended until {$tomorrow}.";
+    $time_over_str = ($seconds_over < 60) ? "{$seconds_over}s" : ((int)ceil($seconds_over / 60) . " min");
+    if ($to_deduct > 0) {
+        $_SESSION['flash'] = "Checked out. Overstay: {$time_over_str}. Penalty: {$units_30s} x 30s = {$total_penalty} points (-20 pts/hr). {$to_deduct} points deducted.";
     } else {
-        $remaining = 3 - ($new_count % 3);
-        $_SESSION['flash'] = "Late check-out — {$fine_label}. Warning {$new_count}/3 — {$remaining} more will suspend your booking access.";
+        $_SESSION['flash'] = "Checked out. Overstay: {$time_over_str}. Total penalty: {$total_penalty} points (already deducted via report).";
     }
 }
 
 header('Location: ' . BASE_URL . '/public/dashboard.php');
 exit;
+

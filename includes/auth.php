@@ -42,8 +42,9 @@ function current_user(): array {
         'id'            => $_SESSION['user_id']       ?? null,
         'role'          => $_SESSION['role']          ?? null,
         'name'          => $_SESSION['name']          ?? null,
-        'reward_points' => (int) ($_SESSION['reward_points'] ?? 0),
-        'package_tier'  => $_SESSION['package_tier']  ?? 'Starter',
+        'reward_points'      => (float) ($_SESSION['reward_points'] ?? 0),
+        'package_tier'       => $_SESSION['package_tier']  ?? 'Starter',
+        'late_checkin_count' => (int) ($_SESSION['late_checkin_count'] ?? 0),
     ];
 }
 
@@ -64,23 +65,26 @@ function login_user(array $user): void {
     $_SESSION['name']                 = $user['full_name'];
     $_SESSION['booking_locked_until'] = $user['booking_locked_until'];
     $_SESSION['late_count']           = (int) ($user['late_departure_count'] ?? 0);
-    $_SESSION['reward_points']        = (int) ($user['reward_points'] ?? 100);
+    $_SESSION['late_checkin_count']   = (int) ($user['late_checkin_count'] ?? 0);
+    $_SESSION['reward_points']        = (float) ($user['reward_points'] ?? 100);
     $_SESSION['package_tier']         = $user['package_tier'] ?? 'Starter';
 }
 
-// Refresh user points and package tier from DB and update session.
-function refresh_user_points(PDO $pdo, int $user_id): int {
-    $stmt = $pdo->prepare('SELECT reward_points, package_tier FROM users WHERE id = ?');
+// Refresh user points, package tier, and late check-in count from DB and update session.
+function refresh_user_points(PDO $pdo, int $user_id): float {
+    $stmt = $pdo->prepare('SELECT reward_points, package_tier, late_checkin_count, booking_locked_until FROM users WHERE id = ?');
     $stmt->execute([$user_id]);
     $row = $stmt->fetch();
     if ($row) {
-        $_SESSION['reward_points'] = (int) ($row['reward_points'] ?? 0);
+        $_SESSION['reward_points']        = (float) ($row['reward_points'] ?? 0);
+        $_SESSION['late_checkin_count']   = (int) ($row['late_checkin_count'] ?? 0);
+        $_SESSION['booking_locked_until'] = $row['booking_locked_until'] ?? null;
         if (!empty($row['package_tier'])) {
             $_SESSION['package_tier'] = $row['package_tier'];
         }
         return $_SESSION['reward_points'];
     }
-    return 0;
+    return 0.0;
 }
 
 // Destroy the session cleanly on logout.

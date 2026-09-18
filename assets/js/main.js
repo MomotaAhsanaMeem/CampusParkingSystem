@@ -61,81 +61,210 @@ function initBookingModal() {
     var inputDuration  = document.getElementById('inputDurationHours');
 
     // Modal display elements
-    var modalSlotCode         = document.getElementById('modalSlotCode');
-    var modalZone             = document.getElementById('modalZone');
-    var modalDate             = document.getElementById('modalDate');
-    var timeBlockGrid         = document.getElementById('timeBlockGrid');
-    var timeBlockSummary      = document.getElementById('timeBlockSummary');
-    var modalPointCost        = document.getElementById('modalPointCost');
-    var modalUserBalance      = document.getElementById('modalUserBalance');
-    var modalRemainingBalance = document.getElementById('modalRemainingBalance');
-    var modalPointsWarning    = document.getElementById('modalPointsWarning');
-    var modalWarningCost      = document.getElementById('modalWarningCost');
-    var modalSubmitBtn        = document.getElementById('modalSubmitBtn');
+    var modalSlotCode              = document.getElementById('modalSlotCode');
+    var modalZone                  = document.getElementById('modalZone');
+    var modalDate                  = document.getElementById('modalDate');
+    var existingBookingsContainer  = document.getElementById('existingBookingsContainer');
+    var existingBookingsCount      = document.getElementById('existingBookingsCount');
+    var pickerStartTime            = document.getElementById('pickerStartTime');
+    var pickerEndTime              = document.getElementById('pickerEndTime');
+    var modalConflictAlert         = document.getElementById('modalConflictAlert');
+    var modalConflictMsg           = document.getElementById('modalConflictMsg');
+    var timeBlockSummary           = document.getElementById('timeBlockSummary');
+    var modalDurationText          = document.getElementById('modalDurationText');
+    var modalPointCost             = document.getElementById('modalPointCost');
+    var modalUserBalance           = document.getElementById('modalUserBalance');
+    var modalRemainingBalance      = document.getElementById('modalRemainingBalance');
+    var modalPointsWarning         = document.getElementById('modalPointsWarning');
+    var modalWarningCost           = document.getElementById('modalWarningCost');
+    var modalSubmitBtn             = document.getElementById('modalSubmitBtn');
 
-    var userPoints = parseInt(overlay.dataset.userPoints, 10) || 0;
+    var userPoints = parseFloat(overlay.dataset.userPoints) || 0;
+    var blockedRanges = []; // [{start, end, mine}]
 
-    // The 9 operating hour-blocks (8 AM – 5 PM, 1-hour units)
-    var HOUR_BLOCKS = [
-        { start: '08:00', end: '09:00', label: '8–9 AM'      },
-        { start: '09:00', end: '10:00', label: '9–10 AM'     },
-        { start: '10:00', end: '11:00', label: '10–11 AM'    },
-        { start: '11:00', end: '12:00', label: '11 AM–12 PM' },
-        { start: '12:00', end: '13:00', label: '12–1 PM'     },
-        { start: '13:00', end: '14:00', label: '1–2 PM'      },
-        { start: '14:00', end: '15:00', label: '2–3 PM'      },
-        { start: '15:00', end: '16:00', label: '3–4 PM'      },
-        { start: '16:00', end: '17:00', label: '4–5 PM'      }
-    ];
-
-    var selectedBlocks = [];  // sorted indices of chosen blocks
-    var blockedRanges  = [];  // [{start, end}] from data-blocked
-
-    function isBlockOccupied(block) {
-        return blockedRanges.some(function(r) {
-            return block.start < r.end && block.end > r.start;
-        });
+    function pad2(n) {
+        return n < 10 ? '0' + n : '' + n;
     }
 
-    function updateCostDisplay() {
-        var count     = selectedBlocks.length;
-        var cost      = count * 10;
-        var remaining = userPoints - cost;
+    function timeToSeconds(t) {
+        if (!t) return 0;
+        var parts = t.split(':');
+        var h = parseInt(parts[0], 10) || 0;
+        var m = parseInt(parts[1], 10) || 0;
+        var s = parseInt(parts[2], 10) || 0;
+        return h * 3600 + m * 60 + s;
+    }
 
-        if (inputDuration) inputDuration.value = count;
+    function secondsToTime(sec) {
+        sec = Math.max(0, Math.min(86399, sec));
+        var h = Math.floor(sec / 3600);
+        var m = Math.floor((sec % 3600) / 60);
+        var s = sec % 60;
+        return pad2(h) + ':' + pad2(m) + ':' + pad2(s);
+    }
 
-        if (modalUserBalance) modalUserBalance.textContent = userPoints + ' points';
+    function formatTime12(t) {
+        if (!t) return '—';
+        var parts = t.split(':');
+        var h = parseInt(parts[0], 10) || 0;
+        var m = parseInt(parts[1], 10) || 0;
+        var s = parseInt(parts[2], 10) || 0;
+        var ampm = h >= 12 ? 'PM' : 'AM';
+        var h12 = h % 12;
+        if (h12 === 0) h12 = 12;
+        if (s > 0) {
+            return h12 + ':' + pad2(m) + ':' + pad2(s) + ' ' + ampm;
+        }
+        return h12 + ':' + pad2(m) + ' ' + ampm;
+    }
 
-        if (count === 0) {
-            if (inputStartTime) inputStartTime.value = '';
-            if (inputEndTime)   inputEndTime.value   = '';
-            if (timeBlockSummary) timeBlockSummary.textContent = 'No blocks selected — tap adjacent hour buttons.';
-            if (modalPointCost)  modalPointCost.textContent  = '—';
-            if (modalRemainingBalance) {
-                modalRemainingBalance.textContent = '— points';
-                modalRemainingBalance.style.color = 'var(--clr-text-muted)';
-            }
-            if (modalSubmitBtn) {
-                modalSubmitBtn.disabled = true;
-                modalSubmitBtn.style.opacity = '0.5';
-                modalSubmitBtn.style.cursor  = 'not-allowed';
-            }
-            if (modalPointsWarning) modalPointsWarning.style.display = 'none';
+    function normalizeTimeInput(val) {
+        if (!val) return '';
+        var parts = val.trim().split(':');
+        if (parts.length === 2) {
+            return pad2(parseInt(parts[0], 10) || 0) + ':' + pad2(parseInt(parts[1], 10) || 0) + ':00';
+        }
+        if (parts.length >= 3) {
+            return pad2(parseInt(parts[0], 10) || 0) + ':' + pad2(parseInt(parts[1], 10) || 0) + ':' + pad2(parseInt(parts[2], 10) || 0);
+        }
+        return val;
+    }
+
+    function renderExistingBookings() {
+        if (!existingBookingsContainer) return;
+        existingBookingsContainer.innerHTML = '';
+
+        if (!blockedRanges || blockedRanges.length === 0) {
+            if (existingBookingsCount) existingBookingsCount.textContent = 'None';
+            var emptyNotice = document.createElement('div');
+            emptyNotice.className = 'no-bookings-notice';
+            emptyNotice.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;color:var(--clr-success);vertical-align:middle;margin-right:4px;">check_circle</span> No bookings on this slot for this date. Fully open!';
+            existingBookingsContainer.appendChild(emptyNotice);
             return;
         }
 
-        var firstBlock = HOUR_BLOCKS[selectedBlocks[0]];
-        var lastBlock  = HOUR_BLOCKS[selectedBlocks[selectedBlocks.length - 1]];
-        if (inputStartTime) inputStartTime.value = firstBlock.start;
-        if (inputEndTime)   inputEndTime.value   = lastBlock.end;
-
-        var startPart = firstBlock.label.split('–')[0].trim();
-        var endPart   = lastBlock.label.split('–')[1]  ? lastBlock.label.split('–')[1].trim() : lastBlock.end;
-        if (timeBlockSummary) {
-            timeBlockSummary.textContent = startPart + ' – ' + endPart
-                + ' (' + count + ' hr' + (count > 1 ? 's' : '') + ' · ' + cost + ' pts)';
+        if (existingBookingsCount) {
+            existingBookingsCount.textContent = blockedRanges.length + (blockedRanges.length > 1 ? ' bookings' : ' booking');
         }
+
+        var list = document.createElement('div');
+        list.className = 'existing-bookings-list';
+
+        blockedRanges.forEach(function(r) {
+            var chip = document.createElement('div');
+            chip.className = 'booking-chip ' + (r.mine ? 'booking-chip--mine' : 'booking-chip--other');
+            chip.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:4px;">schedule</span> ' +
+                             formatTime12(r.start) + ' – ' + formatTime12(r.end) +
+                             ' <span class="booking-chip-tag">' + (r.mine ? 'Your Booking' : 'Booked') + '</span>';
+            list.appendChild(chip);
+        });
+
+        existingBookingsContainer.appendChild(list);
+    }
+
+    function validateAndUpdate() {
+        if (!pickerStartTime || !pickerEndTime) return;
+
+        var startVal = normalizeTimeInput(pickerStartTime.value);
+        var endVal   = normalizeTimeInput(pickerEndTime.value);
+
+        if (inputStartTime) inputStartTime.value = startVal;
+        if (inputEndTime)   inputEndTime.value   = endVal;
+
+        if (modalUserBalance) {
+            modalUserBalance.textContent = (userPoints % 1 === 0 ? userPoints : userPoints.toFixed(2)) + ' points';
+        }
+
+        // Check if values entered
+        if (!startVal || !endVal) {
+            setSubmitState(false, 'Please enter both start and end times.');
+            return;
+        }
+
+        var startSec = timeToSeconds(startVal);
+        var endSec   = timeToSeconds(endVal);
+
+        // Basic sequence check
+        if (startSec >= endSec) {
+            showConflict('End time must be strictly after start time.');
+            setSubmitState(false);
+            return;
+        }
+
+        // Check past time if booking for today
+        var datePicker = document.getElementById('bookingDate');
+        var selectedDate = datePicker ? datePicker.value : '';
+        var serverToday = overlay ? (overlay.dataset.serverToday || '') : '';
+        var serverTime  = overlay ? (overlay.dataset.serverTime  || '') : '';
+
+        var now = new Date();
+        var y = now.getFullYear();
+        var m = pad2(now.getMonth() + 1);
+        var d = pad2(now.getDate());
+        var clientToday = y + '-' + m + '-' + d;
+        var isToday = (selectedDate && (selectedDate === serverToday || selectedDate === clientToday));
+
+        if (isToday) {
+            var clientNowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            var srvNowSec    = serverTime ? timeToSeconds(serverTime) : clientNowSec;
+            var currentSec   = Math.max(clientNowSec, srvNowSec);
+
+            if (endSec <= currentSec) {
+                showConflict('This time range has already ended for today.');
+                setSubmitState(false);
+                return;
+            }
+        }
+
+        // Check overlaps against existing bookings on this slot
+        var conflictingRange = null;
+        for (var i = 0; i < blockedRanges.length; i++) {
+            var r = blockedRanges[i];
+            var rStart = timeToSeconds(r.start);
+            var rEnd   = timeToSeconds(r.end);
+            if (startSec < rEnd && endSec > rStart) {
+                conflictingRange = r;
+                break;
+            }
+        }
+
+        if (conflictingRange) {
+            showConflict('Conflict! This slot is already booked from ' +
+                         formatTime12(conflictingRange.start) + ' to ' + formatTime12(conflictingRange.end) + '.');
+            setSubmitState(false);
+            return;
+        }
+
+        // Valid selection! Clear conflict
+        hideConflict();
+
+        // Calculate duration & cost
+        var durSec = endSec - startSec;
+        var durHours = Math.max(1, Math.ceil(durSec / 3600));
+        var cost = durHours * 10;
+        var remaining = userPoints - cost;
+
+        if (inputDuration) inputDuration.value = durHours;
+
+        // Human-friendly duration string
+        var durText = '';
+        if (durSec < 60) {
+            durText = durSec + 's';
+        } else if (durSec < 3600) {
+            var mins = Math.floor(durSec / 60);
+            var secs = durSec % 60;
+            durText = secs > 0 ? mins + 'm ' + secs + 's' : mins + 'm';
+        } else {
+            var hrs = Math.floor(durSec / 3600);
+            var remMins = Math.floor((durSec % 3600) / 60);
+            durText = remMins > 0 ? hrs + ' hr ' + remMins + ' min' : hrs + ' hr' + (hrs > 1 ? 's' : '');
+        }
+
+        if (modalDurationText) modalDurationText.textContent = durText;
         if (modalPointCost) modalPointCost.textContent = cost + ' points';
+        if (timeBlockSummary) {
+            timeBlockSummary.textContent = formatTime12(startVal) + ' – ' + formatTime12(endVal) + ' (' + durText + ' · ' + cost + ' pts)';
+        }
 
         if (remaining < 0) {
             if (modalRemainingBalance) {
@@ -146,115 +275,86 @@ function initBookingModal() {
                 modalPointsWarning.style.display = 'flex';
                 if (modalWarningCost) modalWarningCost.textContent = cost;
             }
-            if (modalSubmitBtn) {
-                modalSubmitBtn.disabled = true;
-                modalSubmitBtn.style.opacity = '0.5';
-                modalSubmitBtn.style.cursor  = 'not-allowed';
-            }
+            setSubmitState(false);
         } else {
             if (modalRemainingBalance) {
-                modalRemainingBalance.textContent = remaining + ' points';
+                modalRemainingBalance.textContent = (remaining % 1 === 0 ? remaining : remaining.toFixed(2)) + ' points';
                 modalRemainingBalance.style.color = 'var(--clr-success)';
             }
             if (modalPointsWarning) modalPointsWarning.style.display = 'none';
-            if (modalSubmitBtn) {
-                modalSubmitBtn.disabled = false;
-                modalSubmitBtn.style.opacity = '1';
-                modalSubmitBtn.style.cursor  = 'pointer';
-            }
+            setSubmitState(true);
         }
     }
 
-    function syncButtonStates() {
-        if (!timeBlockGrid) return;
-        timeBlockGrid.querySelectorAll('.btn-time-block').forEach(function(btn) {
-            if (btn.disabled) return;
-            var idx = parseInt(btn.getAttribute('data-idx'), 10);
-            var isSelected = selectedBlocks.indexOf(idx) !== -1;
-            btn.classList.toggle('btn-time-block--selected', isSelected);
-            btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
-        });
+    function showConflict(msg) {
+        if (modalConflictAlert && modalConflictMsg) {
+            modalConflictMsg.textContent = msg;
+            modalConflictAlert.style.display = 'flex';
+        }
+        if (timeBlockSummary) timeBlockSummary.textContent = '';
+        if (modalDurationText) modalDurationText.textContent = '—';
+        if (modalPointCost) modalPointCost.textContent = '—';
+        if (modalRemainingBalance) {
+            modalRemainingBalance.textContent = '— points';
+            modalRemainingBalance.style.color = 'var(--clr-text-muted)';
+        }
     }
 
-    function toggleBlock(idx) {
-        var pos = selectedBlocks.indexOf(idx);
+    function hideConflict() {
+        if (modalConflictAlert) {
+            modalConflictAlert.style.display = 'none';
+        }
+    }
 
-        if (pos !== -1) {
-            // Deselect — only allowed from the ends of the selection
-            if (selectedBlocks.length > 1 && pos !== 0 && pos !== selectedBlocks.length - 1) {
-                flashSummary('Remove from either end of your selection.');
-                return;
-            }
-            selectedBlocks.splice(pos, 1);
-        } else {
-            // Select — must be adjacent to the current selection or be the first pick
-            if (selectedBlocks.length === 0) {
-                selectedBlocks.push(idx);
-            } else {
-                var min = selectedBlocks[0];
-                var max = selectedBlocks[selectedBlocks.length - 1];
-                if (idx === min - 1 || idx === max + 1) {
-                    selectedBlocks.push(idx);
-                    selectedBlocks.sort(function(a, b) { return a - b; });
-                } else {
-                    flashSummary('⚠ Blocks must be contiguous — pick adjacent hours only.');
-                    return;
+    function setSubmitState(enabled, summaryMsg) {
+        if (modalSubmitBtn) {
+            modalSubmitBtn.disabled = !enabled;
+            modalSubmitBtn.style.opacity = enabled ? '1' : '0.5';
+            modalSubmitBtn.style.cursor  = enabled ? 'pointer' : 'not-allowed';
+        }
+        if (summaryMsg && timeBlockSummary) {
+            timeBlockSummary.textContent = summaryMsg;
+        }
+    }
+
+    // Quick preset buttons for instant test setups
+    document.querySelectorAll('.btn-preset').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var preset = btn.getAttribute('data-preset');
+            var now = new Date();
+            var curSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+            if (preset === 'now') {
+                pickerStartTime.value = secondsToTime(curSec);
+                var endSec = timeToSeconds(pickerEndTime.value);
+                if (!endSec || endSec <= curSec) {
+                    pickerEndTime.value = secondsToTime(curSec + 60);
                 }
-            }
-        }
-
-        syncButtonStates();
-        updateCostDisplay();
-    }
-
-    function flashSummary(msg) {
-        if (!timeBlockSummary) return;
-        var prev = timeBlockSummary.textContent;
-        timeBlockSummary.textContent = msg;
-        setTimeout(function() {
-            // Only restore if nothing changed in the meantime
-            if (timeBlockSummary.textContent === msg) {
-                timeBlockSummary.textContent = prev;
-            }
-        }, 1600);
-    }
-
-    function buildTimeBlockGrid(card) {
-        if (!timeBlockGrid) return;
-        timeBlockGrid.innerHTML = '';
-        selectedBlocks = [];
-
-        try { blockedRanges = JSON.parse(card.dataset.blocked || '[]'); }
-        catch (e) { blockedRanges = []; }
-
-        HOUR_BLOCKS.forEach(function(block, idx) {
-            var btn = document.createElement('button');
-            btn.type      = 'button';
-            btn.className = 'btn-time-block';
-            btn.setAttribute('data-idx',   idx);
-            btn.setAttribute('data-start', block.start);
-            btn.setAttribute('data-end',   block.end);
-            btn.setAttribute('aria-pressed', 'false');
-
-            var parts = block.label.split('–');
-            btn.innerHTML =
-                '<span style="display:block;font-size:11px;font-weight:700;">' + (parts[0] ? parts[0].trim() : block.start) + '</span>' +
-                '<span style="display:block;font-size:10px;opacity:0.75;">→ ' + (parts[1] ? parts[1].trim() : block.end) + '</span>';
-
-            if (isBlockOccupied(block)) {
-                btn.disabled = true;
-                btn.classList.add('btn-time-block--disabled');
-                btn.setAttribute('aria-label', block.label + ' — occupied');
-                btn.setAttribute('aria-disabled', 'true');
             } else {
-                btn.setAttribute('aria-label', block.label + ' — available');
-                btn.addEventListener('click', function() { toggleBlock(idx); });
+                var startSec = timeToSeconds(pickerStartTime.value);
+                if (!startSec) {
+                    startSec = curSec;
+                    pickerStartTime.value = secondsToTime(startSec);
+                }
+                var addSec = 60;
+                if (preset === '30s') addSec = 30;
+                else if (preset === '1m') addSec = 60;
+                else if (preset === '5m') addSec = 300;
+                else if (preset === '1h') addSec = 3600;
+
+                pickerEndTime.value = secondsToTime(startSec + addSec);
             }
-
-            timeBlockGrid.appendChild(btn);
+            validateAndUpdate();
         });
+    });
 
-        updateCostDisplay();
+    if (pickerStartTime) {
+        pickerStartTime.addEventListener('input', validateAndUpdate);
+        pickerStartTime.addEventListener('change', validateAndUpdate);
+    }
+    if (pickerEndTime) {
+        pickerEndTime.addEventListener('input', validateAndUpdate);
+        pickerEndTime.addEventListener('change', validateAndUpdate);
     }
 
     function openModal(card) {
@@ -267,7 +367,26 @@ function initBookingModal() {
         var datePicker = document.getElementById('bookingDate');
         if (modalDate) modalDate.textContent = datePicker ? formatDate(datePicker.value) : '—';
 
-        buildTimeBlockGrid(card);
+        try {
+            blockedRanges = JSON.parse(card.dataset.blocked || '[]');
+        } catch (e) {
+            blockedRanges = [];
+        }
+
+        renderExistingBookings();
+
+        // Suggest default start and end times:
+        // Set start time to current time, and end time to start time + 5 min (easy for testing)
+        var now = new Date();
+        var curSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+        var startSec = curSec;
+        var endSec = Math.min(86399, startSec + 300); // +5 minutes
+
+        pickerStartTime.value = secondsToTime(startSec);
+        pickerEndTime.value   = secondsToTime(endSec);
+
+        hideConflict();
+        validateAndUpdate();
 
         overlay.classList.add('is-open');
         overlay.setAttribute('aria-hidden', 'false');
@@ -355,33 +474,46 @@ function initFormValidation() {
         form.querySelectorAll('.form-error[data-client]').forEach(function(el) {
             el.textContent = '';
         });
-        form.querySelectorAll('.form-input').forEach(function(el) {
+        form.querySelectorAll('.form-input, .auth-input-pill').forEach(function(el) {
             el.classList.remove('form-input--error');
         });
 
-        const emailInput = form.querySelector('[name="email"]');
-        const passInput  = form.querySelector('[name="password"]');
+        const isSignup     = !!form.querySelector('[name="confirm_password"]');
+        const emailInput   = form.querySelector('[name="email"]');
+        const passInput    = form.querySelector('[name="password"]');
         const confirmInput = form.querySelector('[name="confirm_password"]');
-        const nameInput  = form.querySelector('[name="full_name"]');
+        const nameInput    = form.querySelector('[name="full_name"]');
 
-        if (nameInput && nameInput.value.trim().length < 2) {
-            showFieldError(nameInput, 'Please enter your full name.');
-            valid = false;
-        }
+        if (isSignup) {
+            if (nameInput && nameInput.value.trim().length < 2) {
+                showFieldError(nameInput, 'Please enter your full name (at least 2 characters).');
+                valid = false;
+            }
 
-        if (emailInput && !isValidEmail(emailInput.value.trim())) {
-            showFieldError(emailInput, 'Please enter a valid email address.');
-            valid = false;
-        }
+            if (emailInput && !isValidEmail(emailInput.value.trim())) {
+                showFieldError(emailInput, 'Please enter a valid email address.');
+                valid = false;
+            }
 
-        if (passInput && passInput.value.length < 8) {
-            showFieldError(passInput, 'Password must be at least 8 characters.');
-            valid = false;
-        }
+            if (passInput && passInput.value.length < 8) {
+                showFieldError(passInput, 'Password must be at least 8 characters.');
+                valid = false;
+            }
 
-        if (confirmInput && passInput && confirmInput.value !== passInput.value) {
-            showFieldError(confirmInput, 'Passwords do not match.');
-            valid = false;
+            if (confirmInput && passInput && confirmInput.value !== passInput.value) {
+                showFieldError(confirmInput, 'Passwords do not match.');
+                valid = false;
+            }
+        } else {
+            // Login: check non-empty
+            if (emailInput && emailInput.value.trim() === '') {
+                showFieldError(emailInput, 'Please enter your university email.');
+                valid = false;
+            }
+            if (passInput && passInput.value === '') {
+                showFieldError(passInput, 'Please enter your password.');
+                valid = false;
+            }
         }
 
         if (!valid) e.preventDefault();
@@ -390,9 +522,13 @@ function initFormValidation() {
 
 function showFieldError(input, message) {
     input.classList.add('form-input--error');
-    // Find a sibling .form-error[data-client] element to display the message
-    const errorEl = input.parentElement.querySelector('.form-error[data-client]');
-    if (errorEl) errorEl.textContent = message;
+    // Find .form-error[data-client] inside the parent form-group
+    const group = input.closest('.form-group') || input.parentElement;
+    const errorEl = group ? group.querySelector('.form-error[data-client]') : null;
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.style.display = 'block';
+    }
 }
 
 function isValidEmail(value) {
@@ -775,6 +911,84 @@ function formatDate(iso) {
 }
 
 /* ==========================================================================
+   Cancel Booking Modal (dashboard page)
+   ========================================================================== */
+
+function initCancelBookingModal() {
+    var overlay = document.getElementById('cancelBookingModal');
+    if (!overlay) return;
+
+    var closeBtn        = document.getElementById('cancelModalClose');
+    var dismissBtn      = document.getElementById('cancelModalDismissBtn');
+    var bookingIdInput  = document.getElementById('cancelModalBookingId');
+    var codeDisplay     = document.getElementById('cancelModalBookingCode');
+    var slotZoneDisplay = document.getElementById('cancelModalSlotZone');
+    var dateTimeDisplay = document.getElementById('cancelModalDateTime');
+    var pointsDisplay   = document.getElementById('cancelModalPoints');
+    var pointsNotice    = document.getElementById('cancelModalPointsNotice');
+
+    function openModal(btn) {
+        var bookingId = btn.dataset.bookingId || '';
+        var code      = btn.dataset.bookingCode || ('#CP-' + bookingId);
+        var slot      = btn.dataset.slotCode || '—';
+        var zone      = btn.dataset.zone || '';
+        var date      = btn.dataset.date || '—';
+        var time      = btn.dataset.time || '';
+        var points    = btn.dataset.points || '10';
+
+        if (bookingIdInput) bookingIdInput.value = bookingId;
+        if (codeDisplay)    codeDisplay.textContent = code;
+        if (slotZoneDisplay) {
+            slotZoneDisplay.textContent = slot + (zone ? ' (' + zone + ')' : '');
+        }
+        if (dateTimeDisplay) {
+            dateTimeDisplay.textContent = date + (time ? ' · ' + time : '');
+        }
+        if (pointsDisplay) {
+            pointsDisplay.textContent = points + ' pts';
+        }
+        if (pointsNotice) {
+            pointsNotice.textContent = points + ' points';
+        }
+
+        overlay.classList.add('is-open');
+        overlay.setAttribute('aria-hidden', 'false');
+        if (dismissBtn) dismissBtn.focus();
+    }
+
+    function closeModal() {
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+    }
+
+    document.querySelectorAll('.btn-cancel-action').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            openModal(btn);
+        });
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+    }
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', closeModal);
+    }
+
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && overlay.classList.contains('is-open')) {
+            closeModal();
+        }
+    });
+}
+
+/* ==========================================================================
    Boot — call the right functions based on the page
    ========================================================================== */
 
@@ -783,6 +997,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initMobileMenu();
 
     const page = document.body.dataset.page || '';
+
+    if (page === 'dashboard' || document.getElementById('cancelBookingModal')) {
+        initCancelBookingModal();
+    }
 
     if (page === 'book-slot') {
         initBookingModal();
