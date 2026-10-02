@@ -9,8 +9,8 @@ if (session_status() === PHP_SESSION_NONE) {
 // Dynamically compute base web URL to work in any folder (e.g. /parking-system or /Web Programming/CampusParkingSystem)
 if (!defined('BASE_URL')) {
     $script_dir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
-    // Strip the /public or /includes leaf so BASE_URL always points to the project root.
-    if (basename($script_dir) === 'public' || basename($script_dir) === 'includes') {
+    // Strip /public, /includes, or /admin leaves so BASE_URL always points to the project root.
+    while (in_array(basename($script_dir), ['public', 'includes', 'admin'])) {
         $script_dir = str_replace('\\', '/', dirname($script_dir));
     }
     if ($script_dir === '/' || $script_dir === '\\' || $script_dir === '.') {
@@ -42,6 +42,8 @@ function current_user(): array {
         'id'                 => $_SESSION['user_id']       ?? null,
         'role'               => $_SESSION['role']          ?? null,
         'name'               => $_SESSION['name']          ?? null,
+        'full_name'          => $_SESSION['name']          ?? null,
+        'email'              => $_SESSION['email']         ?? null,
         'reward_points'      => (float) ($_SESSION['reward_points'] ?? 0),
         'package_tier'       => $_SESSION['package_tier']  ?? 'Starter',
         'late_checkin_count' => (int) ($_SESSION['late_checkin_count'] ?? 0),
@@ -80,6 +82,7 @@ function login_user(array $user): void {
     $_SESSION['user_id']              = $user['id'];
     $_SESSION['role']                 = $user['role'];
     $_SESSION['name']                 = $user['full_name'];
+    $_SESSION['email']                = $user['email'] ?? '';
     $_SESSION['booking_locked_until'] = $user['booking_locked_until'];
     $_SESSION['late_count']           = (int) ($user['late_departure_count'] ?? 0);
     $_SESSION['late_checkin_count']   = (int) ($user['late_checkin_count'] ?? 0);

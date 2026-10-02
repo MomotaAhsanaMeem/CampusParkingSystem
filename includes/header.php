@@ -163,6 +163,13 @@ $current_file = basename($_SERVER['PHP_SELF']);
                 <span class="material-symbols-outlined" style="font-size:16px;">toll</span>
                 <span><?= $user_pts_str ?> pts</span>
             </a>
+            <?php if (($user['role'] ?? '') === 'admin'): ?>
+                <a href="<?= BASE_URL ?>/admin/dashboard.php"
+                   class="nav-link" style="color:var(--clr-secondary); font-weight:700; display:inline-flex; align-items:center; gap:4px;">
+                    <span class="material-symbols-outlined" style="font-size:18px;">admin_panel_settings</span>
+                    Admin Console
+                </a>
+            <?php endif; ?>
             <span class="nav-link text-muted" style="cursor:default; font-size:13px;">
                 <?= htmlspecialchars($user['full_name'] ?? $user['name'] ?? '') ?>
             </span>
@@ -216,6 +223,13 @@ $current_file = basename($_SERVER['PHP_SELF']);
                 <?= $user_pts_str ?> pts
             </span>
         </a>
+        <?php if (($user['role'] ?? '') === 'admin'): ?>
+            <a href="<?= BASE_URL ?>/admin/dashboard.php"
+               class="mobile-nav-link flex items-center gap-2" style="color:var(--clr-secondary); font-weight:700;">
+                <span class="material-symbols-outlined" style="font-size:20px;">admin_panel_settings</span>
+                <span>Admin Console</span>
+            </a>
+        <?php endif; ?>
         <div class="mobile-nav-user">
             Logged in as <strong><?= htmlspecialchars($user['full_name'] ?? $user['name'] ?? '') ?></strong>
         </div>

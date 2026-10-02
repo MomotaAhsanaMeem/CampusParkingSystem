@@ -88,10 +88,11 @@ INSERT INTO parking_slots (slot_code, zone) VALUES
 ('C2', 'Central Campus')
 ON DUPLICATE KEY UPDATE zone = VALUES(zone);
 
--- 7. Seed Demo Accounts for Instant Local Testing (Password for both: password123)
+-- 7. Seed Demo Accounts for Instant Local Testing (Password for all: password123)
 INSERT INTO users (id, full_name, email, password_hash, role, reward_points, package_tier) VALUES
 (1, 'Demo Student', 'student@campuspark.edu', '$2y$10$uQKdAa7PhWnSeMgF1a/ti.SOzN/E9DMiMrS2d5XbXFKifPLnl8kfW', 'user', 100.00, 'Starter'),
-(2, 'Test Driver 2', 'driver2@campuspark.edu', '$2y$10$uQKdAa7PhWnSeMgF1a/ti.SOzN/E9DMiMrS2d5XbXFKifPLnl8kfW', 'user', 100.00, 'Starter')
+(2, 'Test Driver 2', 'driver2@campuspark.edu', '$2y$10$uQKdAa7PhWnSeMgF1a/ti.SOzN/E9DMiMrS2d5XbXFKifPLnl8kfW', 'user', 100.00, 'Starter'),
+(3, 'Campus Administrator', 'admin@campuspark.edu', '$2y$10$uQKdAa7PhWnSeMgF1a/ti.SOzN/E9DMiMrS2d5XbXFKifPLnl8kfW', 'admin', 500.00, 'Admin')
 ON DUPLICATE KEY UPDATE full_name = VALUES(full_name);
 
 INSERT INTO point_transactions (user_id, type, points, description) VALUES

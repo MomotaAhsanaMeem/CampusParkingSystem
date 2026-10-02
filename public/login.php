@@ -4,7 +4,11 @@ require_once __DIR__ . '/../includes/auth.php';
 
 $user = current_user();
 if (!empty($user['id'])) {
-    header('Location: ' . BASE_URL . '/public/dashboard.php');
+    if (($user['role'] ?? '') === 'admin') {
+        header('Location: ' . BASE_URL . '/admin/dashboard.php');
+    } else {
+        header('Location: ' . BASE_URL . '/public/dashboard.php');
+    }
     exit;
 }
 
@@ -26,7 +30,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($row && password_verify($password, $row['password_hash'])) {
             login_user($row);
-            header('Location: ' . BASE_URL . '/public/dashboard.php');
+            if (($row['role'] ?? '') === 'admin') {
+                header('Location: ' . BASE_URL . '/admin/dashboard.php');
+            } else {
+                header('Location: ' . BASE_URL . '/public/dashboard.php');
+            }
             exit;
         } else {
             $error_banner = $fail_msg;
