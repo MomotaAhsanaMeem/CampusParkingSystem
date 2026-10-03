@@ -104,6 +104,18 @@ while ($row = $occupiedStmt->fetch()) {
     $occupied_by_bid[(int)$row['id']]     = $row;
 }
 
+// Fetch complaints filed by the current user so we know which blocked bookings already have an active report
+$myComplaintsStmt = $pdo->prepare(
+    "SELECT blocked_booking_id, occupying_booking_id, penalty_deducted, status
+       FROM complaints
+      WHERE complainant_id = ?"
+);
+$myComplaintsStmt->execute([$user['id']]);
+$my_complaints_by_blocked = [];
+while ($cRow = $myComplaintsStmt->fetch()) {
+    $my_complaints_by_blocked[(int)$cRow['blocked_booking_id']] = $cRow;
+}
+
 // Check if current user has an active checked-in booking for today
 $myActiveStmt = $pdo->prepare(
     "SELECT b.id, b.slot_id, b.booking_date, b.start_time, b.end_time, b.check_in_time, b.penalty_points_deducted,
@@ -278,19 +290,31 @@ require_once __DIR__ . '/../includes/header.php';
                 <span class="material-symbols-outlined" style="font-size:20px; color:#D97706; margin-top:1px; flex-shrink:0;">warning_amber</span>
                 <div style="flex:1; min-width:0;">
                     <strong style="font-size:13px; color:#92400E; display:block; margin-bottom:4px;">Slot is blocked by an occupying vehicle</strong>
-                    <?php if ($occ_can_report): ?>
+                    <?php 
+                        $is_already_rep = isset($my_complaints_by_blocked[(int)$blocked_checkin['blocked_id']]);
+                    ?>
+                    <?php if ($is_already_rep): ?>
                     <p style="font-size:12px; color:#78350F; margin:0 0 8px 0; line-height:1.5;">
-                        The previous reservation has overstayed by <strong><?= $occ_time_str ?></strong> (accrued penalty: <strong><?= $occ_penalty ?> pts</strong> @ 20 pts/hr).
-                        You can <strong>report this</strong> now to receive a <strong>+<?= $occ_penalty ?> points reward</strong> (deducted from the occupant).
+                        Bay obstruction is already reported! The overstayer has overstayed by <strong><?= $occ_time_str ?></strong> (accumulated reward: <strong>~<?= $occ_penalty ?> pts</strong> @ 20 pts/hr).
+                        Your reward will be calculated and deposited into your account as soon as the occupant empties the slot.
+                    </p>
+                    <span class="badge" style="background:rgba(245,158,11,0.20); color:#92400E; border:1px solid #D97706; padding:6px 12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                        <span class="material-symbols-outlined" style="font-size:16px;">hourglass_top</span>
+                        Report Active &bull; Calculating until slot is emptied
+                    </span>
+                    <?php elseif ($occ_can_report): ?>
+                    <p style="font-size:12px; color:#78350F; margin:0 0 8px 0; line-height:1.5;">
+                        The previous reservation has overstayed by <strong><?= $occ_time_str ?></strong> (accumulating at 20 pts/hr, currently ~<strong><?= $occ_penalty ?> pts</strong>).
+                        You can <strong>report this bay obstruction</strong> now. Your reward will keep accumulating as long as the slot is occupied and will be calculated and credited when the slot is emptied by the overstayer.
                     </p>
                     <form method="POST" action="<?= BASE_URL ?>/includes/checkin.php" style="display:inline;">
                         <input type="hidden" name="action"               value="report">
                         <input type="hidden" name="blocked_booking_id"   value="<?= (int)$blocked_checkin['blocked_id'] ?>">
                         <input type="hidden" name="occupying_booking_id" value="<?= (int)$blocked_checkin['occupying_id'] ?>">
                         <button type="submit" class="btn btn-report"
-                                aria-label="Report the overstaying vehicle and earn +<?= $occ_penalty ?> reward points">
+                                aria-label="Report the overstaying vehicle">
                             <span class="material-symbols-outlined" style="font-size:15px;">report</span>
-                            Report &amp; Earn +<?= $occ_penalty ?> pts
+                            Report Bay Obstruction
                         </button>
                     </form>
                     <?php else: ?>
@@ -318,7 +342,7 @@ require_once __DIR__ . '/../includes/header.php';
     <div class="flex items-center justify-between flex-wrap gap-md mb-lg">
         <div class="page-header" style="margin-bottom:0;">
             <h1 class="page-title">
-                Welcome back, <?= htmlspecialchars($user['name'] ?? 'Driver') ?> 👋
+                Welcome back, <?= htmlspecialchars($user['name'] ?? 'Driver') ?> 
             </h1>
             <p class="page-subtitle">Here's an overview of your campus parking activity & reward wallet.</p>
         </div>
@@ -376,7 +400,72 @@ require_once __DIR__ . '/../includes/header.php';
     <!-- Booking history -->
     <section aria-labelledby="historyTitle">
 
-        <h2 class="page-title mb-md" style="font-size:22px;" id="historyTitle">Recent Bookings</h2>
+        <div class="flex items-center justify-between flex-wrap gap-sm mb-md">
+            <h2 class="page-title" style="font-size:22px; margin-bottom:0;" id="historyTitle">Recent Bookings</h2>
+            <div class="flex items-center gap-xs flex-wrap">
+                <!-- PDF Export Menu -->
+                <div style="position:relative; display:inline-block;" id="pdfMenuContainer">
+                    <button type="button" id="pdfExportDropdownBtn"
+                            class="btn btn-outline flex items-center gap-xs"
+                            style="font-size:12px; padding:5px 12px; border-color:var(--clr-secondary); color:var(--clr-secondary); font-weight:600;"
+                            aria-expanded="false"
+                            aria-haspopup="true">
+                        <span class="material-symbols-outlined" style="font-size:16px;">picture_as_pdf</span>
+                        <span>Export PDF Report</span>
+                        <span class="material-symbols-outlined" style="font-size:14px;">expand_more</span>
+                    </button>
+                    <div id="pdfExportDropdownMenu"
+                         style="display:none; position:absolute; right:0; top:calc(100% + 4px); background:var(--clr-surface); border:1px solid var(--clr-border-subtle); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.15); z-index:100; min-width:200px; padding:6px 0; overflow:hidden;">
+                        <a href="<?= BASE_URL ?>/public/export-pdf.php?period=today" target="_blank"
+                           class="flex items-center gap-xs"
+                           style="padding:8px 14px; font-size:12px; color:var(--clr-text); text-decoration:none; transition:background 0.15s ease;"
+                           onmouseover="this.style.background='var(--clr-surface-high)'"
+                           onmouseout="this.style.background='transparent'">
+                            <span class="material-symbols-outlined" style="font-size:16px; color:var(--clr-secondary);">today</span>
+                            <span>Today's Report (PDF)</span>
+                        </a>
+                        <a href="<?= BASE_URL ?>/public/export-pdf.php?period=month" target="_blank"
+                           class="flex items-center gap-xs"
+                           style="padding:8px 14px; font-size:12px; color:var(--clr-text); text-decoration:none; transition:background 0.15s ease;"
+                           onmouseover="this.style.background='var(--clr-surface-high)'"
+                           onmouseout="this.style.background='transparent'">
+                            <span class="material-symbols-outlined" style="font-size:16px; color:var(--clr-secondary);">calendar_month</span>
+                            <span>This Month's Report (PDF)</span>
+                        </a>
+                        <a href="<?= BASE_URL ?>/public/export-pdf.php?period=all" target="_blank"
+                           class="flex items-center gap-xs"
+                           style="padding:8px 14px; font-size:12px; color:var(--clr-text); text-decoration:none; transition:background 0.15s ease; border-top:1px solid var(--clr-border-subtle);"
+                           onmouseover="this.style.background='var(--clr-surface-high)'"
+                           onmouseout="this.style.background='transparent'">
+                            <span class="material-symbols-outlined" style="font-size:16px; color:var(--clr-secondary);">history</span>
+                            <span>Complete History (PDF)</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Receipt emails — each is a self-contained POST to send-receipt.php -->
+                <form method="POST" action="<?= BASE_URL ?>/includes/send-receipt.php" style="display:inline;">
+                    <input type="hidden" name="period" value="today">
+                    <button type="submit" id="receiptTodayBtn"
+                            class="btn btn-outline flex items-center gap-xs"
+                            style="font-size:12px; padding:5px 12px;"
+                            title="Email a summary of today's bookings to <?= htmlspecialchars($user['email'] ?? '') ?>">
+                        <span class="material-symbols-outlined" style="font-size:15px;">receipt</span>
+                        Email today's receipt
+                    </button>
+                </form>
+                <form method="POST" action="<?= BASE_URL ?>/includes/send-receipt.php" style="display:inline;">
+                    <input type="hidden" name="period" value="month">
+                    <button type="submit" id="receiptMonthBtn"
+                            class="btn btn-outline flex items-center gap-xs"
+                            style="font-size:12px; padding:5px 12px;"
+                            title="Email a summary of this month's bookings to <?= htmlspecialchars($user['email'] ?? '') ?>">
+                        <span class="material-symbols-outlined" style="font-size:15px;">summarize</span>
+                        Email this month's receipt
+                    </button>
+                </form>
+            </div>
+        </div>
 
         <?php if (empty($bookings)): ?>
             <div class="empty-state">
@@ -516,17 +605,26 @@ require_once __DIR__ . '/../includes/header.php';
                                     <?php endif; ?>
 
                                     <?php if ($b['status'] === 'booked' && $is_today_booking && $is_slot_occupied && !$is_before_start): ?>
-                                    <?php $occ_bid = (int)($row_occ['id'] ?? 0); ?>
-                                    <?php if ($occ_bid > 0 && $row_can_report): ?>
+                                    <?php 
+                                        $occ_bid = (int)($row_occ['id'] ?? 0); 
+                                        $already_reported = isset($my_complaints_by_blocked[(int)$b['id']]);
+                                    ?>
+                                    <?php if ($already_reported): ?>
+                                    <span class="badge" style="background:rgba(245,158,11,0.15); color:#B45309; border:1px solid #F59E0B; padding:5px 10px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:4px;"
+                                          title="Bay obstruction reported. Reward is accumulating (~<?= $row_penalty ?> pts so far) and will be credited when the slot is emptied by the overstayer.">
+                                        <span class="material-symbols-outlined" style="font-size:14px;">hourglass_top</span>
+                                        Reported (~<?= $row_penalty ?> pts pending)
+                                    </span>
+                                    <?php elseif ($occ_bid > 0 && $row_can_report): ?>
                                     <form method="POST" action="<?= BASE_URL ?>/includes/checkin.php" style="display:inline;">
                                         <input type="hidden" name="action"               value="report">
                                         <input type="hidden" name="blocked_booking_id"   value="<?= (int)$b['id'] ?>">
                                         <input type="hidden" name="occupying_booking_id" value="<?= $occ_bid ?>">
                                         <button type="submit" class="btn btn-report"
-                                                title="Report vehicle overstaying by <?= $row_time_str ?> to earn +<?= $row_penalty ?> reward points"
-                                                aria-label="Report overstaying vehicle in slot <?= htmlspecialchars($b['slot_code']) ?> and earn +<?= $row_penalty ?> pts">
+                                                title="Report vehicle overstaying by <?= $row_time_str ?>. Reward accumulates until slot is emptied."
+                                                aria-label="Report overstaying vehicle in slot <?= htmlspecialchars($b['slot_code']) ?>">
                                             <span class="material-symbols-outlined" style="font-size:15px;">report</span>
-                                            Report (+<?= $row_penalty ?> pts)
+                                            Report Bay Obstruction
                                         </button>
                                     </form>
                                     <?php endif; ?>
@@ -570,9 +668,14 @@ require_once __DIR__ . '/../includes/header.php';
                                     </form>
                                     <?php endif; ?>
 
-                                    <?php if (!$show_checkin && !$show_checkout && $b['status'] !== 'booked'): ?>
-                                    <span class="text-muted" style="font-size:12px;">—</span>
-                                    <?php endif; ?>
+                                    <a href="<?= BASE_URL ?>/public/export-pdf.php?booking_id=<?= (int)$b['id'] ?>"
+                                       target="_blank"
+                                       class="btn btn-outline"
+                                       style="padding:3px 8px; font-size:11px; border-color:var(--clr-border-subtle); display:inline-flex; align-items:center; gap:3px;"
+                                       title="Download PDF Receipt for #CP-<?= str_pad((string)$b['id'], 4, '0', STR_PAD_LEFT) ?>">
+                                        <span class="material-symbols-outlined" style="font-size:14px; color:var(--clr-secondary);">picture_as_pdf</span>
+                                        <span>Receipt</span>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -648,5 +751,26 @@ require_once __DIR__ . '/../includes/header.php';
 
     </div>
 </div>
+
+<script>
+(function() {
+    const pdfBtn = document.getElementById('pdfExportDropdownBtn');
+    const pdfMenu = document.getElementById('pdfExportDropdownMenu');
+    if (pdfBtn && pdfMenu) {
+        pdfBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = pdfMenu.style.display === 'block';
+            pdfMenu.style.display = isOpen ? 'none' : 'block';
+            pdfBtn.setAttribute('aria-expanded', !isOpen);
+        });
+        document.addEventListener('click', function(e) {
+            if (!pdfMenu.contains(e.target) && e.target !== pdfBtn) {
+                pdfMenu.style.display = 'none';
+                pdfBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+})();
+</script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

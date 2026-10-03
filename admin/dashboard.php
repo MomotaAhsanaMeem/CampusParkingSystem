@@ -204,6 +204,10 @@ require_once __DIR__ . '/includes/admin_header.php';
         <p class="admin-page-subtitle">Live campus parking slot status, driver check-in telemetry, and compliance auditing.</p>
     </div>
     <div style="display:flex; align-items:center; gap:8px;">
+        <a href="<?= BASE_URL ?>/admin/export-pdf.php?type=audit" target="_blank" class="btn btn-outline" style="font-size:13px; padding:8px 14px; display:inline-flex; align-items:center; gap:6px; border-color:var(--clr-secondary); color:var(--clr-secondary); font-weight:600;">
+            <span class="material-symbols-outlined" style="font-size:16px;">picture_as_pdf</span>
+            <span>Export Audit PDF</span>
+        </a>
         <a href="<?= BASE_URL ?>/admin/dashboard.php" class="btn btn-outline" style="font-size:13px; padding:8px 14px; display:inline-flex; align-items:center; gap:6px;">
             <span class="material-symbols-outlined" style="font-size:16px;">refresh</span>
             <span>Refresh Telemetry</span>

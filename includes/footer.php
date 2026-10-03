@@ -18,5 +18,23 @@
 </footer>
 
 <script src="<?= BASE_URL ?>/assets/js/main.js?v=<?= file_exists(__DIR__ . '/../assets/js/main.js') ? filemtime(__DIR__ . '/../assets/js/main.js') : time() ?>"></script>
+
+<?php if (!empty($_SESSION['user_id'])): ?>
+<script>
+// Reminder poller — simulates a background cron without a server scheduler.
+// Calls check-reminders.php every 60 s while a logged-in page is open.
+(function () {
+    var INTERVAL_MS = 60000;
+    var endpoint    = '<?= BASE_URL ?>/public/check-reminders.php';
+    function pollReminders() {
+        fetch(endpoint, { credentials: 'same-origin' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .catch(function () {}); // silently ignore network errors
+    }
+    pollReminders(); // fire once immediately on page load, then every 60 s
+    setInterval(pollReminders, INTERVAL_MS);
+})();
+</script>
+<?php endif; ?>
 </body>
 </html>

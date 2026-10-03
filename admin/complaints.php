@@ -57,7 +57,7 @@ $offset        = ($page - 1) * $per_page;
 
 // Fetch complaints
 $complaints_stmt = $pdo->prepare(
-    "SELECT c.id, c.created_at, c.penalty_deducted,
+    "SELECT c.id, c.created_at, c.penalty_deducted, c.status,
             c.blocked_booking_id, c.occupying_booking_id,
             c.complainant_id,
             u_comp.id AS complainant_id, u_comp.full_name AS complainant_name, u_comp.email AS complainant_email,
@@ -249,9 +249,16 @@ require_once __DIR__ . '/includes/admin_header.php';
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <span style="font-size:15px; font-weight:700; color:var(--clr-error);">
-                                        -<?= number_format((float)$cm['penalty_deducted'], 2) ?> pts
-                                    </span>
+                                    <?php if (($cm['status'] ?? 'resolved') === 'pending'): ?>
+                                        <span class="badge" style="background:rgba(245,158,11,0.15); color:#B45309; border:1px solid #F59E0B; font-weight:600; font-size:11px;">
+                                            <span class="material-symbols-outlined" style="font-size:12px; vertical-align:middle;">hourglass_top</span>
+                                            Pending Checkout
+                                        </span>
+                                    <?php else: ?>
+                                        <span style="font-size:15px; font-weight:700; color:var(--clr-error);">
+                                            -<?= number_format((float)$cm['penalty_deducted'], 2) ?> pts
+                                        </span>
+                                    <?php endif; ?>
                                 </td>
                                 <td style="font-size:12px; color:var(--clr-text-muted);"><?= date('M j, Y g:i A', strtotime($cm['created_at'])) ?></td>
                                 <td>
@@ -346,8 +353,13 @@ if ($view_id > 0):
                     </div>
                 </div>
                 <div style="text-align:right;">
-                    <div style="font-size:11px; color:var(--clr-text-muted);">Penalty Deducted</div>
-                    <div style="font-size:24px; font-weight:800; color:var(--clr-error);">-<?= number_format((float)$cmp['penalty_deducted'], 2) ?> pts</div>
+                    <?php if (($cmp['status'] ?? 'resolved') === 'pending'): ?>
+                        <div style="font-size:11px; color:#D97706; font-weight:700;">Status: Pending Checkout</div>
+                        <div style="font-size:12px; color:var(--clr-text-muted); margin-top:2px;">Reward calculating until slot is emptied</div>
+                    <?php else: ?>
+                        <div style="font-size:11px; color:var(--clr-text-muted);">Penalty Deducted</div>
+                        <div style="font-size:24px; font-weight:800; color:var(--clr-error);">-<?= number_format((float)$cmp['penalty_deducted'], 2) ?> pts</div>
+                    <?php endif; ?>
                 </div>
             </div>
 

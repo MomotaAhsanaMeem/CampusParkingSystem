@@ -195,6 +195,14 @@ require_once __DIR__ . '/includes/admin_header.php';
                     <span class="material-symbols-outlined" style="font-size:16px;">search</span>
                     Search
                 </button>
+                <a href="<?= BASE_URL ?>/admin/export-pdf.php?type=bookings&search=<?= urlencode($search) ?>&status=<?= urlencode($status_filter) ?>&zone=<?= urlencode($zone_filter) ?>&date_from=<?= urlencode($date_from) ?>&date_to=<?= urlencode($date_to) ?>"
+                   target="_blank"
+                   class="btn btn-outline"
+                   style="font-size:13px; padding:8px 14px; border-radius:8px; border-color:var(--clr-secondary); color:var(--clr-secondary); font-weight:600; display:inline-flex; align-items:center; gap:5px;"
+                   title="Export filtered bookings report as PDF">
+                    <span class="material-symbols-outlined" style="font-size:16px;">picture_as_pdf</span>
+                    <span>Export PDF</span>
+                </a>
                 <?php if ($search || $status_filter || $zone_filter || $date_from || $date_to): ?>
                     <a href="<?= BASE_URL ?>/admin/bookings.php" class="btn btn-outline" style="font-size:13px; padding:8px 14px; border-radius:8px;">Clear</a>
                 <?php endif; ?>
@@ -211,7 +219,16 @@ require_once __DIR__ . '/includes/admin_header.php';
             <span>Booking Records</span>
             <span class="badge" style="background:var(--clr-surface-high); color:var(--clr-text-muted);"><?= number_format($total_records) ?></span>
         </div>
-        <span style="font-size:12px; color:var(--clr-text-muted);">Page <?= $page ?> of <?= $total_pages ?></span>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <a href="<?= BASE_URL ?>/admin/export-pdf.php?type=bookings&search=<?= urlencode($search) ?>&status=<?= urlencode($status_filter) ?>&zone=<?= urlencode($zone_filter) ?>&date_from=<?= urlencode($date_from) ?>&date_to=<?= urlencode($date_to) ?>"
+               target="_blank"
+               style="font-size:12px; color:var(--clr-secondary); display:inline-flex; align-items:center; gap:4px; text-decoration:none; font-weight:600;"
+               title="Export filtered records as PDF">
+                <span class="material-symbols-outlined" style="font-size:16px;">picture_as_pdf</span>
+                <span>Export PDF</span>
+            </a>
+            <span style="font-size:12px; color:var(--clr-text-muted);">Page <?= $page ?> of <?= $total_pages ?></span>
+        </div>
     </div>
 
     <div class="admin-card-body" style="padding:0;">
@@ -462,7 +479,14 @@ if ($view_id > 0):
             <?php endif; ?>
 
         </div>
-        <div style="padding:14px 24px; border-top:1px solid var(--clr-border); text-align:right;">
+        <div style="padding:14px 24px; border-top:1px solid var(--clr-border); display:flex; justify-content:space-between; align-items:center;">
+            <a href="<?= BASE_URL ?>/public/export-pdf.php?booking_id=<?= (int)$bk['id'] ?>"
+               target="_blank"
+               class="btn btn-outline"
+               style="font-size:13px; padding:8px 16px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; border-color:var(--clr-secondary); color:var(--clr-secondary); font-weight:600;">
+                <span class="material-symbols-outlined" style="font-size:16px;">picture_as_pdf</span>
+                <span>Download Receipt PDF</span>
+            </a>
             <a href="<?= BASE_URL ?>/admin/bookings.php<?= booking_query() ?>" class="btn btn-outline" style="font-size:13px; padding:8px 20px; border-radius:8px;">Close</a>
         </div>
     </div>

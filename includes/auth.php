@@ -27,6 +27,11 @@ function require_login(): void {
     }
 }
 
+// Alias for require_login()
+function require_auth(): void {
+    require_login();
+}
+
 // Redirect non-admins away from admin-only pages.
 function require_admin(): void {
     require_login();
@@ -96,14 +101,17 @@ function refresh_user_points(PDO $pdo, int $user_id): float {
     $stmt->execute([$user_id]);
     $row = $stmt->fetch();
     if ($row) {
-        $_SESSION['reward_points']        = (float) ($row['reward_points'] ?? 0);
-        $_SESSION['late_checkin_count']   = (int) ($row['late_checkin_count'] ?? 0);
-        $_SESSION['late_count']           = (int) ($row['late_departure_count'] ?? 0);
-        $_SESSION['booking_locked_until'] = $row['booking_locked_until'] ?? null;
-        if (!empty($row['package_tier'])) {
-            $_SESSION['package_tier'] = $row['package_tier'];
+        $pts = (float) ($row['reward_points'] ?? 0);
+        if (isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === $user_id) {
+            $_SESSION['reward_points']        = $pts;
+            $_SESSION['late_checkin_count']   = (int) ($row['late_checkin_count'] ?? 0);
+            $_SESSION['late_count']           = (int) ($row['late_departure_count'] ?? 0);
+            $_SESSION['booking_locked_until'] = $row['booking_locked_until'] ?? null;
+            if (!empty($row['package_tier'])) {
+                $_SESSION['package_tier'] = $row['package_tier'];
+            }
         }
-        return $_SESSION['reward_points'];
+        return $pts;
     }
     return 0.0;
 }

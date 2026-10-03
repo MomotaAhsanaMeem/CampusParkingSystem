@@ -141,6 +141,11 @@ if (strpos($admin_name, ' ') !== false) {
                     <span class="material-symbols-outlined">campaign</span>
                     <span>Complaints</span>
                 </a>
+                <a href="<?= BASE_URL ?>/admin/export-pdf.php?type=audit" target="_blank"
+                   class="admin-nav-link">
+                    <span class="material-symbols-outlined">picture_as_pdf</span>
+                    <span>Export Audit PDF</span>
+                </a>
             </div>
 
             <!-- Group 4: Navigation -->

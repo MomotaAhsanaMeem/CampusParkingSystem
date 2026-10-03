@@ -39,7 +39,7 @@ if ($view_user_id > 0) {
 
     // Complaints filed by user
     $complStmt = $pdo->prepare(
-        "SELECT c.id, c.created_at, c.penalty_deducted,
+        "SELECT c.id, c.created_at, c.penalty_deducted, c.status,
                 bb.id AS blocked_bid, bs.slot_code AS blocked_slot,
                 ob.id AS occ_bid, os.slot_code AS occ_slot, ou.full_name AS overstayer_name
            FROM complaints c
@@ -264,7 +264,13 @@ if ($view_user_id > 0) {
                                         <td>#<?= (int)$cm['id'] ?></td>
                                         <td><span class="badge" style="background:var(--clr-surface-high);"><?= htmlspecialchars($cm['blocked_slot']) ?></span></td>
                                         <td><?= htmlspecialchars($cm['overstayer_name']) ?></td>
-                                        <td style="color:var(--clr-error); font-weight:700;">-<?= number_format((float)$cm['penalty_deducted'], 2) ?> pts</td>
+                                        <td>
+                                            <?php if (($cm['status'] ?? 'resolved') === 'pending'): ?>
+                                                <span class="badge" style="background:rgba(245,158,11,0.15); color:#B45309; font-size:11px;">Pending</span>
+                                            <?php else: ?>
+                                                <span style="color:var(--clr-error); font-weight:700;">-<?= number_format((float)$cm['penalty_deducted'], 2) ?> pts</span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td style="font-size:11px;"><?= date('M j, Y', strtotime($cm['created_at'])) ?></td>
                                     </tr>
                                 <?php endforeach; ?>

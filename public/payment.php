@@ -326,6 +326,14 @@ require_once __DIR__ . '/../includes/header.php';
                                 <span class="badge" style="background:rgba(8,145,178,0.12); color:var(--clr-secondary); border:1px solid var(--clr-border-violet);">
                                     ⚡ Package Recharge
                                 </span>
+                            <?php elseif ($tx['type'] === 'report_reward'): ?>
+                                <span class="badge" style="background:rgba(16,185,129,0.15); color:#047857; border:1px solid #10B981;">
+                                    🏆 Report Reward
+                                </span>
+                            <?php elseif ($tx['type'] === 'late_fine'): ?>
+                                <span class="badge" style="background:rgba(239,68,68,0.15); color:#B91C1C; border:1px solid #EF4444;">
+                                    ⚠️ Overstay Penalty
+                                </span>
                             <?php else: ?>
                                 <span class="badge" style="background:rgba(100,116,139,0.12); color:#475569; border:1px solid #CBD5E1;">
                                     🅿️ Slot Booking

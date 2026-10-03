@@ -157,6 +157,10 @@ $current_file = basename($_SERVER['PHP_SELF']);
                class="nav-link <?= $current_file === 'book-slot.php' ? 'nav-link--active' : '' ?>">
                 Book a Slot
             </a>
+            <a href="<?= BASE_URL ?>/public/profile.php"
+               class="nav-link <?= $current_file === 'profile.php' ? 'nav-link--active' : '' ?>">
+                Profile
+            </a>
             <a href="<?= BASE_URL ?>/public/payment.php"
                class="nav-points-badge <?= $current_file === 'payment.php' ? 'nav-points-badge--active' : '' ?>"
                title="Reward Points & Payment Packages">
@@ -212,6 +216,10 @@ $current_file = basename($_SERVER['PHP_SELF']);
         <a href="<?= BASE_URL ?>/public/book-slot.php"
            class="mobile-nav-link <?= $current_file === 'book-slot.php' ? 'mobile-nav-link--active' : '' ?>">
             Book a Slot
+        </a>
+        <a href="<?= BASE_URL ?>/public/profile.php"
+           class="mobile-nav-link <?= $current_file === 'profile.php' ? 'mobile-nav-link--active' : '' ?>">
+            Profile
         </a>
         <a href="<?= BASE_URL ?>/public/payment.php"
            class="mobile-nav-link flex items-center justify-between <?= $current_file === 'payment.php' ? 'mobile-nav-link--active' : '' ?>">

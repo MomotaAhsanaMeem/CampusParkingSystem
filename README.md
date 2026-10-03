@@ -118,8 +118,8 @@ You can log in immediately with either of the pre-seeded accounts or register a 
 1. **User 1 (`student@campuspark.edu`)**: Checks into slot `A1` and allows the reservation to overstay past scheduled end time.
 2. **User 2 (`driver2@campuspark.edu`)**: Books slot `A1` for a time slot starting after User 1's scheduled end time.
 3. When User 2 attempts to check in, the system detects that User 1 is overstaying in slot `A1`.
-4. User 2 clicks **Report Occupying Vehicle**.
-5. User 2 receives a **reward in points** credited to their account, which is deducted directly from User 1's balance.
+4. User 2 clicks **Report Bay Obstruction**. The complaint is registered and the reward begins accumulating in real time (20 pts/hour in 30s increments) for as long as the slot remains occupied.
+5. When User 1 checks out (empties the bay), the total overstay duration is finalized: the full overtime penalty is deducted from User 1's balance, and User 2 receives the exact matching reward points credited directly to their wallet.
 
 ### 6. Points Recharging & Transaction History
 1. Click the **Points Badge** (`... pts`) in the navigation bar or visit `http://localhost/parking-system/public/payment.php`.

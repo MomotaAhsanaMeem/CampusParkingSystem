@@ -98,6 +98,58 @@ if ($seconds_over <= 0) {
         } catch (Throwable $ignoreTx) {}
     }
 
+    // 1b. Reward Complainant(s): As long as the slot was occupied/booked past schedule,
+    // the complainant receives the reward calculated when the slot is emptied by the overstayer.
+    $compStmt = $pdo->prepare(
+        "SELECT c.id, c.complainant_id, c.blocked_booking_id, c.penalty_deducted,
+                s.slot_code
+           FROM complaints c
+           JOIN bookings bb ON bb.id = c.blocked_booking_id
+           JOIN parking_slots s ON s.id = bb.slot_id
+          WHERE c.occupying_booking_id = ?"
+    );
+    $compStmt->execute([$booking_id]);
+    $complaints_to_reward = $compStmt->fetchAll();
+
+    foreach ($complaints_to_reward as $cmp_item) {
+        $complainant_uid  = (int) $cmp_item['complainant_id'];
+        $already_awarded  = (float) ($cmp_item['penalty_deducted'] ?? 0.0);
+        $reward_to_credit = max(0.0, round($total_penalty - $already_awarded, 2));
+
+        if ($reward_to_credit > 0) {
+            // Credit complainant's wallet
+            $awardStmt = $pdo->prepare('UPDATE users SET reward_points = reward_points + ? WHERE id = ?');
+            $awardStmt->execute([$reward_to_credit, $complainant_uid]);
+            refresh_user_points($pdo, $complainant_uid);
+
+            // Update complaint record to mark resolved and reflect final penalty deducted / reward given
+            $updCmp = $pdo->prepare(
+                "UPDATE complaints 
+                    SET penalty_deducted = penalty_deducted + ?,
+                        status = 'resolved'
+                  WHERE id = ?"
+            );
+            $updCmp->execute([$reward_to_credit, (int)$cmp_item['id']]);
+
+            // Audit log in point_transactions for complainant
+            try {
+                $txComp = $pdo->prepare(
+                    "INSERT INTO point_transactions (user_id, type, points, description)
+                     VALUES (?, 'report_reward', ?, ?)"
+                );
+                $txComp->execute([
+                    $complainant_uid,
+                    $reward_to_credit,
+                    "Reward (+{$reward_to_credit} pts) for bay obstruction report in Slot {$cmp_item['slot_code']} ({$seconds_over}s overstay until slot emptied, {$units_30s}x30s @ 20 pts/hr = {$total_penalty} pts total)"
+                ]);
+            } catch (Throwable $ignoreTx) {}
+        } else {
+            // Ensure status is marked resolved even if 0 delta
+            $updCmp = $pdo->prepare("UPDATE complaints SET status = 'resolved' WHERE id = ?");
+            $updCmp->execute([(int)$cmp_item['id']]);
+        }
+    }
+
     // 2. Increment user's late_departure_count
     $incDep = $pdo->prepare('UPDATE users SET late_departure_count = late_departure_count + 1 WHERE id = ?');
     $incDep->execute([$user_id]);

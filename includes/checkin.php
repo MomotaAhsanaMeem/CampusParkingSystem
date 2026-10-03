@@ -244,61 +244,20 @@ if ($action === 'report') {
         $pdo->beginTransaction();
 
         $ins = $pdo->prepare(
-            'INSERT INTO complaints (blocked_booking_id, occupying_booking_id, complainant_id, penalty_deducted)
-             VALUES (?, ?, ?, ?)'
+            'INSERT INTO complaints (blocked_booking_id, occupying_booking_id, complainant_id, penalty_deducted, status)
+             VALUES (?, ?, ?, 0.00, ?)'
         );
-        $ins->execute([$blocked_id, $occupying_id, $user_id, $fine_points]);
-
-        $occupant_user_id = (int) $occupying_booking['user_id'];
-
-        // 1. Deduct decimal penalty from the overstaying driver (no freeze for overstayers)
-        $deduct = $pdo->prepare('UPDATE users SET reward_points = reward_points - ? WHERE id = ?');
-        $deduct->execute([$fine_points, $occupant_user_id]);
-        refresh_user_points($pdo, $occupant_user_id);
-
-        // Track points deducted on the occupying booking row
-        $trackStmt = $pdo->prepare('UPDATE bookings SET penalty_points_deducted = penalty_points_deducted + ? WHERE id = ?');
-        $trackStmt->execute([$fine_points, $occupying_id]);
-
-        // 2. Award decimal reward to complainant
-        $award = $pdo->prepare('UPDATE users SET reward_points = reward_points + ? WHERE id = ?');
-        $award->execute([$reward_points, $user_id]);
-        refresh_user_points($pdo, $user_id);
-
-        // 3. Log transactions with decimal points
-        try {
-            $tx1 = $pdo->prepare(
-                "INSERT INTO point_transactions (user_id, type, points, description)
-                 VALUES (?, 'report_reward', ?, ?)"
-            );
-            $tx1->execute([
-                $user_id,
-                $reward_points,
-                "Reward (+{$reward_points} pts) for reporting overstaying vehicle in Slot {$occupying_booking['slot_code']} ({$time_over_str} overdue, {$units_30s}x30s @ 20 pts/hr)"
-            ]);
-
-            $tx2 = $pdo->prepare(
-                "INSERT INTO point_transactions (user_id, type, points, description)
-                 VALUES (?, 'late_fine', ?, ?)"
-            );
-            $tx2->execute([
-                $occupant_user_id,
-                -$fine_points,
-                "Overstay penalty: -{$fine_points} pts deducted for occupying Slot {$occupying_booking['slot_code']} ({$time_over_str} overdue, {$units_30s}x30s @ 20 pts/hr)"
-            ]);
-        } catch (Throwable $txEx) {
-            // Non-critical logging failure
-        }
+        $ins->execute([$blocked_id, $occupying_id, $user_id, 'pending']);
 
         $pdo->commit();
 
-        $_SESSION['flash'] = "Complaint filed successfully! Slot {$occupying_booking['slot_code']} has been overstayed by {$time_over_str} ({$units_30s} x 30s intervals). +{$reward_points} reward points were added to your wallet, and {$fine_points} points were deducted from the overstaying driver.";
+        $_SESSION['flash'] = "Complaint filed successfully! Slot {$occupying_booking['slot_code']} obstruction has been reported (vehicle overstayed by {$time_over_str} so far). Your reward is actively accumulating (20 pts/hr) as long as the slot remains occupied, and will be calculated and credited to your wallet once the slot is emptied by the overstayer.";
     } catch (PDOException $e) {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
         if ($e->getCode() === '23000') {
-            $_SESSION['flash_error'] = 'You have already reported this slot occupancy. Our campus patrol has been notified.';
+            $_SESSION['flash_error'] = 'You have already reported this slot occupancy. Our campus patrol has been notified, and your reward will be calculated once the overstayer empties the slot.';
         } else {
             $_SESSION['flash_error'] = 'Could not file complaint. Please try again.';
         }
@@ -385,7 +344,16 @@ try {
             $units_30s = max(1, (int) ceil($sec_over / 30));
             $penalty_pts = round($units_30s * (20.0 / 120.0), 2);
             $time_over_str = ($sec_over < 60) ? "{$sec_over}s" : ((int)ceil($sec_over / 60) . " min");
-            $_SESSION['flash_error'] = "Slot {$booking['slot_code']} is currently occupied. The previous vehicle has overstayed by {$time_over_str}. You can report below to receive a +{$penalty_pts} pts reward.";
+
+            $chkCmp = $pdo->prepare('SELECT id, penalty_deducted, status FROM complaints WHERE blocked_booking_id = ?');
+            $chkCmp->execute([$booking_id]);
+            $existing_cmp = $chkCmp->fetch();
+
+            if ($existing_cmp) {
+                $_SESSION['flash_error'] = "Slot {$booking['slot_code']} is currently occupied. You have already reported this overstay ({$time_over_str} overdue so far). Your reward (~{$penalty_pts} pts) will be calculated and credited when the slot is emptied by the overstayer.";
+            } else {
+                $_SESSION['flash_error'] = "Slot {$booking['slot_code']} is currently occupied. The previous vehicle has overstayed by {$time_over_str}. You can report below — your reward will be calculated when the slot is emptied by the overstayer.";
+            }
         } else {
             $end_label = $occ_end_ts > 0 ? date('g:i:s A', $occ_end_ts) : 'scheduled end';
             $_SESSION['flash_error'] = "Slot {$booking['slot_code']} is currently occupied. The previous reservation is active until {$end_label}.";

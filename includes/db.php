@@ -103,7 +103,8 @@ try {
                 blocked_booking_id   INT NOT NULL,
                 occupying_booking_id INT NOT NULL,
                 complainant_id       INT NOT NULL,
-                penalty_deducted     INT NOT NULL DEFAULT 5,
+                penalty_deducted     DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+                status               VARCHAR(20) NOT NULL DEFAULT 'resolved',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE KEY unique_blocked (blocked_booking_id),
                 FOREIGN KEY (blocked_booking_id)   REFERENCES bookings(id) ON DELETE CASCADE,
@@ -115,6 +116,12 @@ try {
             $colCheck7 = $pdo->query("SHOW COLUMNS FROM complaints LIKE 'penalty_deducted'");
             if ($colCheck7 && !$colCheck7->fetch()) {
                 $pdo->exec("ALTER TABLE complaints ADD COLUMN penalty_deducted DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER complainant_id");
+            }
+
+            // Check if complaints has status column if table already existed
+            $colCheck8 = $pdo->query("SHOW COLUMNS FROM complaints LIKE 'status'");
+            if ($colCheck8 && !$colCheck8->fetch()) {
+                $pdo->exec("ALTER TABLE complaints ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'resolved' AFTER penalty_deducted");
             }
 
             // Ensure points columns support decimals for 30s penalty increments
@@ -147,6 +154,22 @@ try {
                 $cRow = $colType ? $colType->fetch(PDO::FETCH_ASSOC) : null;
                 if ($cRow && !str_starts_with(strtolower($cRow['Type']), 'decimal')) {
                     $pdo->exec("ALTER TABLE point_transactions MODIFY COLUMN points DECIMAL(10,2) NOT NULL");
+                }
+            } catch (Throwable $e) {}
+
+            // Add reminder_minutes_before so users can opt into pre-checkin email reminders
+            try {
+                $colRem = $pdo->query("SHOW COLUMNS FROM users LIKE 'reminder_minutes_before'");
+                if ($colRem && !$colRem->fetch()) {
+                    $pdo->exec("ALTER TABLE users ADD COLUMN reminder_minutes_before INT NOT NULL DEFAULT 30 AFTER package_tier");
+                }
+            } catch (Throwable $e) {}
+
+            // Add reminder_sent flag so each booking gets at most one reminder email
+            try {
+                $colRs = $pdo->query("SHOW COLUMNS FROM bookings LIKE 'reminder_sent'");
+                if ($colRs && !$colRs->fetch()) {
+                    $pdo->exec("ALTER TABLE bookings ADD COLUMN reminder_sent TINYINT(1) NOT NULL DEFAULT 0 AFTER status");
                 }
             } catch (Throwable $e) {}
         } catch (Throwable $ignore) {

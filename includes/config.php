@@ -18,3 +18,8 @@ if (DEMO_MODE) {
     if (!defined('LOCK_DURATION_SECONDS')) define('LOCK_DURATION_SECONDS', 86400);
     if (!defined('GRACE_SECONDS'))         define('GRACE_SECONDS', 0); // Grace time removed
 }
+
+// PHPMailer / SMTP configuration — replace placeholders before use.
+define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_PORT', 587);
+require_once __DIR__ . '/secrets.php'; // defines SMTP_USER and SMTP_PASS

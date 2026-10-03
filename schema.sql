@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     booking_locked_until DATETIME DEFAULT NULL, -- set when late_departure_count hits a multiple of 3 (120s freeze)
     reward_points DECIMAL(10,2) NOT NULL DEFAULT 100.00,
     package_tier VARCHAR(50) DEFAULT 'Starter',
+    reminder_minutes_before INT NOT NULL DEFAULT 30,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -55,6 +56,7 @@ CREATE TABLE IF NOT EXISTS complaints (
     occupying_booking_id INT NOT NULL,
     complainant_id       INT NOT NULL,
     penalty_deducted     DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    status               VARCHAR(20) NOT NULL DEFAULT 'resolved',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unique_blocked (blocked_booking_id),
     FOREIGN KEY (blocked_booking_id)   REFERENCES bookings(id) ON DELETE CASCADE,
@@ -88,14 +90,10 @@ INSERT INTO parking_slots (slot_code, zone) VALUES
 ('C2', 'Central Campus')
 ON DUPLICATE KEY UPDATE zone = VALUES(zone);
 
--- 7. Seed Demo Accounts for Instant Local Testing (Password for all: password123)
+-- 7. Admin Section (password123)
 INSERT INTO users (id, full_name, email, password_hash, role, reward_points, package_tier) VALUES
-(1, 'Demo Student', 'student@campuspark.edu', '$2y$10$uQKdAa7PhWnSeMgF1a/ti.SOzN/E9DMiMrS2d5XbXFKifPLnl8kfW', 'user', 100.00, 'Starter'),
-(2, 'Test Driver 2', 'driver2@campuspark.edu', '$2y$10$uQKdAa7PhWnSeMgF1a/ti.SOzN/E9DMiMrS2d5XbXFKifPLnl8kfW', 'user', 100.00, 'Starter'),
-(3, 'Campus Administrator', 'admin@campuspark.edu', '$2y$10$uQKdAa7PhWnSeMgF1a/ti.SOzN/E9DMiMrS2d5XbXFKifPLnl8kfW', 'admin', 500.00, 'Admin')
+(1, 'Campus Administrator', 'admin@campuspark.edu', '$2y$10$uQKdAa7PhWnSeMgF1a/ti.SOzN/E9DMiMrS2d5XbXFKifPLnl8kfW', 'admin', 500.00, 'Admin')
 ON DUPLICATE KEY UPDATE full_name = VALUES(full_name);
 
-INSERT INTO point_transactions (user_id, type, points, description) VALUES
-(1, 'signup_bonus', 100.00, 'Welcome bonus reward points'),
-(2, 'signup_bonus', 100.00, 'Welcome bonus reward points')
-ON DUPLICATE KEY UPDATE description = VALUES(description);
+
+
